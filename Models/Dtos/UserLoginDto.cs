@@ -5,7 +5,7 @@ namespace CodeQuestBackend.Models.Dtos;
 
 public class UserLoginDto
 {
-    [Required(ErrorMessage = "El campo username es requerido")]
+    [Required(ErrorMessage = "El campo email es requerido")]
     public string? Email { get; set; }
 
     [Required(ErrorMessage = "El campo password es requerido")]

@@ -39,7 +39,7 @@ namespace CodeQuestBackend.Controllers
 
         }
 
-        [HttpPost(Name = "RegisterUser")]
+        [HttpPost("Register", Name = "RegisterUser")]
         public async Task<IActionResult> RegisterUser([FromBody] CreateUserDto createUserDto)
         {
             if (createUserDto == null || !ModelState.IsValid)
@@ -61,6 +61,22 @@ namespace CodeQuestBackend.Controllers
             }
             return CreatedAtRoute("GetUser", new { id = result.Id }, result);
         }
+
+        [HttpPost("Login", Name = "LoginUser")]
+        public async Task<IActionResult> LoginUser([FromBody] UserLoginDto userLoginDto)
+        {
+            if (userLoginDto == null || !ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var user = await _userRepository.Login(userLoginDto);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+            return Ok(user);
+        }
+
 
     }
 }
