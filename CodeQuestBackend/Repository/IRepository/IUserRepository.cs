@@ -6,7 +6,7 @@ namespace CodeQuestBackend.Repository.IRepository;
 
 public interface IUserRepository
 {
-    ICollection<User> GetUsers();
+    ICollection<User> GetAllUsers();
     User? GetUser(int id);
     bool IsUniqueEmail(string email);
     Task<UserLoginResponseDto> Login(UserLoginDto userLoginDto);

@@ -135,3 +135,11 @@ C:\Users\iZerg\Desktop\CodeQuest2025\Backend-CodeQuest2025\CodeQuestBackend\obj\
 C:\Users\iZerg\Desktop\CodeQuest2025\Backend-CodeQuest2025\CodeQuestBackend\obj\Debug\net8.0\CodeQuestBackend.pdb
 C:\Users\iZerg\Desktop\CodeQuest2025\Backend-CodeQuest2025\CodeQuestBackend\obj\Debug\net8.0\CodeQuestBackend.genruntimeconfig.cache
 C:\Users\iZerg\Desktop\CodeQuest2025\Backend-CodeQuest2025\CodeQuestBackend\obj\Debug\net8.0\ref\CodeQuestBackend.dll
+C:\Users\iZerg\Desktop\CodeQuest2025\Backend-CodeQuest2025\CodeQuestBackend\bin\Debug\net8.0\AutoMapper.dll
+C:\Users\iZerg\Desktop\CodeQuest2025\Backend-CodeQuest2025\CodeQuestBackend\bin\Debug\net8.0\BCrypt.Net-Next.dll
+C:\Users\iZerg\Desktop\CodeQuest2025\Backend-CodeQuest2025\CodeQuestBackend\bin\Debug\net8.0\Microsoft.Bcl.TimeProvider.dll
+C:\Users\iZerg\Desktop\CodeQuest2025\Backend-CodeQuest2025\CodeQuestBackend\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\iZerg\Desktop\CodeQuest2025\Backend-CodeQuest2025\CodeQuestBackend\bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\iZerg\Desktop\CodeQuest2025\Backend-CodeQuest2025\CodeQuestBackend\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
+C:\Users\iZerg\Desktop\CodeQuest2025\Backend-CodeQuest2025\CodeQuestBackend\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
+C:\Users\iZerg\Desktop\CodeQuest2025\Backend-CodeQuest2025\CodeQuestBackend\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
