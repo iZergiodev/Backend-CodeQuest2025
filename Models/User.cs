@@ -17,5 +17,13 @@ public class User
     public DateTime BirthDate { get; set; }
     public DateTime CreatedAt { get; set; }
     public int StarDustPoints { get; set; }
-
+    
+    // Discord authentication fields
+    public string? DiscordId { get; set; }
+    public string? DiscordUsername { get; set; }
+    public string? DiscordDiscriminator { get; set; }
+    public string? DiscordAvatar { get; set; }
+    public string? DiscordAccessToken { get; set; }
+    public string? DiscordRefreshToken { get; set; }
+    public DateTime? DiscordTokenExpiresAt { get; set; }
 }
