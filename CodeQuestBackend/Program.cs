@@ -9,7 +9,9 @@ using CodeQuestBackend.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var dbConnectionString = builder.Configuration.GetConnectionString("PostgreRailway");
+var dbConnectionString = builder.Environment.IsDevelopment() 
+    ? builder.Configuration.GetConnectionString("DefaultConnection")
+    : builder.Configuration.GetConnectionString("PostgreRailway");
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(dbConnectionString));
 
 // Add repositories
