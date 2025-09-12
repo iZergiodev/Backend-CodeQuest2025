@@ -50,5 +50,15 @@ public class UserRepository : IUserRepository
         await _db.SaveChangesAsync();
         return user;
     }
+    
+    public Task<UserLoginResponseDto> Login(UserLoginDto userLoginDto)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<User> Register(CreateUserDto createUserDto)
+    {
+        throw new NotImplementedException();
+    }
 
 }
