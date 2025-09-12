@@ -11,4 +11,7 @@ public interface IUserRepository
     bool IsUniqueEmail(string email);
     Task<UserLoginResponseDto> Login(UserLoginDto userLoginDto);
     Task<User> Register(CreateUserDto createUserDto);
+    Task<User?> GetByDiscordIdAsync(string discordId);
+    Task<User> CreateAsync(User user);
+    Task<User> UpdateAsync(User user);
 }

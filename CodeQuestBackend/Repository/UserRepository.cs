@@ -2,6 +2,7 @@ using System;
 using CodeQuestBackend.Models;
 using CodeQuestBackend.Models.Dtos;
 using CodeQuestBackend.Repository.IRepository;
+using Microsoft.EntityFrameworkCore;
 
 namespace CodeQuestBackend.Repository;
 
@@ -30,13 +31,24 @@ public class UserRepository : IUserRepository
         return !_db.Users.Any(u => u.Email.ToLower().Trim() == email.ToLower().Trim());
     }
 
-    public Task<UserLoginResponseDto> Login(UserLoginDto userLoginDto)
+
+    public async Task<User?> GetByDiscordIdAsync(string discordId)
     {
-        throw new NotImplementedException();
+        return await _db.Users.FirstOrDefaultAsync(u => u.DiscordId == discordId);
     }
 
-    public Task<User> Register(CreateUserDto createUserDto)
+    public async Task<User> CreateAsync(User user)
     {
-        throw new NotImplementedException();
+        _db.Users.Add(user);
+        await _db.SaveChangesAsync();
+        return user;
     }
+
+    public async Task<User> UpdateAsync(User user)
+    {
+        _db.Users.Update(user);
+        await _db.SaveChangesAsync();
+        return user;
+    }
+
 }

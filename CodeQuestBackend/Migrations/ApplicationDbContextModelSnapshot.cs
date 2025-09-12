@@ -21,7 +21,7 @@ namespace CodeQuestBackend.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("CodeQuestBackend.Models.Users", b =>
+            modelBuilder.Entity("CodeQuestBackend.Models.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -41,7 +41,29 @@ namespace CodeQuestBackend.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DiscordAccessToken")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DiscordAvatar")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DiscordDiscriminator")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DiscordId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DiscordRefreshToken")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DiscordTokenExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DiscordUsername")
+                        .HasColumnType("text");
+
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Name")

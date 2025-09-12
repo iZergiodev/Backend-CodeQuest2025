@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CodeQuestBackend.Migrations
 {
     /// <inheritdoc />
-    public partial class CreateTableUser : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -21,13 +21,20 @@ namespace CodeQuestBackend.Migrations
                     Username = table.Column<string>(type: "text", nullable: true),
                     Password = table.Column<string>(type: "text", nullable: true),
                     Name = table.Column<string>(type: "text", nullable: true),
-                    Email = table.Column<string>(type: "text", nullable: true),
+                    Email = table.Column<string>(type: "text", nullable: false),
                     Role = table.Column<string>(type: "text", nullable: true),
                     Avatar = table.Column<string>(type: "text", nullable: true),
                     Biography = table.Column<string>(type: "text", nullable: true),
                     BirthDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    StarDustPoints = table.Column<int>(type: "integer", nullable: false)
+                    StarDustPoints = table.Column<int>(type: "integer", nullable: false),
+                    DiscordId = table.Column<string>(type: "text", nullable: true),
+                    DiscordUsername = table.Column<string>(type: "text", nullable: true),
+                    DiscordDiscriminator = table.Column<string>(type: "text", nullable: true),
+                    DiscordAvatar = table.Column<string>(type: "text", nullable: true),
+                    DiscordAccessToken = table.Column<string>(type: "text", nullable: true),
+                    DiscordRefreshToken = table.Column<string>(type: "text", nullable: true),
+                    DiscordTokenExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
