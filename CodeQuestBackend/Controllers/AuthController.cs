@@ -220,6 +220,46 @@ public class AuthController : ControllerBase
         }
     }
 
+    [HttpGet("verify")]
+    [Microsoft.AspNetCore.Authorization.Authorize]
+    public IActionResult VerifyToken()
+    {
+        try
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+            {
+                return Unauthorized(new { message = "Invalid token claims" });
+            }
+
+            var user = _userRepository.GetUser(userId);
+            if (user == null)
+            {
+                return Unauthorized(new { message = "User not found" });
+            }
+
+            return Ok(new
+            {
+                user = new
+                {
+                    id = user.Id,
+                    username = user.Username,
+                    email = user.Email,
+                    name = user.Name,
+                    avatar = user.Avatar,
+                    discordId = user.DiscordId,
+                    discordUsername = user.DiscordUsername,
+                    role = user.Role,
+                    starDustPoints = user.StarDustPoints
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+        }
+    }
+
 
     private string GenerateJwtToken(User user)
     {
