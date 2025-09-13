@@ -15,10 +15,12 @@ var dbConnectionString = builder.Environment.IsDevelopment()
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(dbConnectionString));
 // Add repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 // Add services
 builder.Services.AddHttpClient<DiscordAuthService>();
 builder.Services.AddScoped<DiscordAuthService>();
+builder.Services.AddScoped<CategoryService>();
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
