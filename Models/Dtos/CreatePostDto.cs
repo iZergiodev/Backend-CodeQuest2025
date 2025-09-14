@@ -19,4 +19,6 @@ public class CreatePostDto
     public string? ImageUrl { get; set; }
 
     public int? CategoryId { get; set; }
+    public int? SubcategoryId { get; set; }
+    public string[] Tags { get; set; } = Array.Empty<string>();
 }

@@ -20,6 +20,8 @@ public class Post
 
     public string? ImageUrl { get; set; }
 
+    public string[] Tags { get; set; } = Array.Empty<string>();
+
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 
@@ -29,12 +31,17 @@ public class Post
 
     public int? CategoryId { get; set; }
 
+    public int? SubcategoryId { get; set; }
+
     // Navigation Properties
     [ForeignKey("AuthorId")]
     public virtual User Author { get; set; } = null!;
 
     [ForeignKey("CategoryId")]
     public virtual Category? Category { get; set; }
+
+    [ForeignKey("SubcategoryId")]
+    public virtual Subcategory? Subcategory { get; set; }
 
     public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
     public virtual ICollection<Like> Likes { get; set; } = new List<Like>();

@@ -105,6 +105,11 @@ public class PostService
             AuthorName = post.Author?.Name ?? string.Empty,
             CategoryId = post.CategoryId,
             CategoryName = post.Category?.Name,
+            CategoryColor = post.Category?.Color,
+            SubcategoryId = post.SubcategoryId,
+            SubcategoryName = post.Subcategory?.Name,
+            SubcategoryColor = post.Subcategory?.Color,
+            Tags = post.Tags,
             LikesCount = post.LikesCount,
             CommentsCount = post.CommentsCount
         };
