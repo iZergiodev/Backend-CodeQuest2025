@@ -8,6 +8,7 @@ using CodeQuestBackend.Models;
 using CodeQuestBackend.Models.Dtos;
 using CodeQuestBackend.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
+using CodeQuestBackend.Data;
 
 namespace CodeQuestBackend.Repository;
 
@@ -142,6 +143,11 @@ public class UserRepository : IUserRepository
         _db.Users.Add(user);
         await _db.SaveChangesAsync();
         return user;
+    }
+
+    public async Task<bool> ExistsAsync(int id)
+    {
+        return await _db.Users.AnyAsync(u => u.Id == id);
     }
 
 }

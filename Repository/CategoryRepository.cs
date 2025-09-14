@@ -2,6 +2,7 @@ using CodeQuestBackend.Models;
 using CodeQuestBackend.Models.Dtos;
 using CodeQuestBackend.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
+using CodeQuestBackend.Data;
 
 namespace CodeQuestBackend.Repository;
 

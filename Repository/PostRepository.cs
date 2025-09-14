@@ -1,0 +1,133 @@
+using CodeQuestBackend.Models;
+using CodeQuestBackend.Models.Dtos;
+using CodeQuestBackend.Repository.IRepository;
+using Microsoft.EntityFrameworkCore;
+using CodeQuestBackend.Data;
+
+namespace CodeQuestBackend.Repository;
+
+public class PostRepository : IPostRepository
+{
+    private readonly ApplicationDbContext _context;
+
+    public PostRepository(ApplicationDbContext context)
+    {
+        _context = context;
+    }
+
+    public async Task<ICollection<Post>> GetAllAsync()
+    {
+        return await _context.Posts
+            .Include(p => p.Author)
+            .Include(p => p.Category)
+            .OrderByDescending(p => p.CreatedAt)
+            .ToListAsync();
+    }
+
+    public async Task<Post?> GetByIdAsync(int id)
+    {
+        return await _context.Posts
+            .Include(p => p.Author)
+            .Include(p => p.Category)
+            .Include(p => p.Comments)
+            .Include(p => p.Likes)
+            .FirstOrDefaultAsync(p => p.Id == id);
+    }
+
+    public async Task<ICollection<Post>> GetByAuthorIdAsync(int authorId)
+    {
+        return await _context.Posts
+            .Include(p => p.Author)
+            .Include(p => p.Category)
+            .Where(p => p.AuthorId == authorId)
+            .OrderByDescending(p => p.CreatedAt)
+            .ToListAsync();
+    }
+
+    public async Task<ICollection<Post>> GetByCategoryIdAsync(int categoryId)
+    {
+        return await _context.Posts
+            .Include(p => p.Author)
+            .Include(p => p.Category)
+            .Where(p => p.CategoryId == categoryId)
+            .OrderByDescending(p => p.CreatedAt)
+            .ToListAsync();
+    }
+
+    public async Task<Post> CreateAsync(CreatePostDto createPostDto, int authorId)
+    {
+        var post = new Post
+        {
+            Title = createPostDto.Title,
+            Content = createPostDto.Content,
+            Summary = createPostDto.Summary,
+            ImageUrl = createPostDto.ImageUrl,
+            AuthorId = authorId,
+            CategoryId = createPostDto.CategoryId,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            LikesCount = 0,
+            CommentsCount = 0
+        };
+
+        _context.Posts.Add(post);
+        await _context.SaveChangesAsync();
+
+        return await GetByIdAsync(post.Id) ?? post;
+    }
+
+    public async Task<Post?> UpdateAsync(int id, CreatePostDto updatePostDto)
+    {
+        var post = await _context.Posts.FirstOrDefaultAsync(p => p.Id == id);
+
+        if (post == null)
+            return null;
+
+        post.Title = updatePostDto.Title;
+        post.Content = updatePostDto.Content;
+        post.Summary = updatePostDto.Summary;
+        post.ImageUrl = updatePostDto.ImageUrl;
+        post.CategoryId = updatePostDto.CategoryId;
+        post.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+        return await GetByIdAsync(post.Id);
+    }
+
+    public async Task<bool> DeleteAsync(int id)
+    {
+        var post = await _context.Posts.FirstOrDefaultAsync(p => p.Id == id);
+
+        if (post == null)
+            return false;
+
+        _context.Posts.Remove(post);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> ExistsAsync(int id)
+    {
+        return await _context.Posts.AnyAsync(p => p.Id == id);
+    }
+
+    public async Task UpdateLikesCountAsync(int postId)
+    {
+        var post = await _context.Posts.FirstOrDefaultAsync(p => p.Id == postId);
+        if (post != null)
+        {
+            post.LikesCount = await _context.Likes.CountAsync(l => l.PostId == postId);
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    public async Task UpdateCommentsCountAsync(int postId)
+    {
+        var post = await _context.Posts.FirstOrDefaultAsync(p => p.Id == postId);
+        if (post != null)
+        {
+            post.CommentsCount = await _context.Comments.CountAsync(c => c.PostId == postId);
+            await _context.SaveChangesAsync();
+        }
+    }
+}
