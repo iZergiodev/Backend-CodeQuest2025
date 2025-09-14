@@ -144,6 +144,9 @@ namespace CodeQuestBackend.Migrations
                     b.Property<int>("LikesCount")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("SubcategoryId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Summary")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
@@ -162,7 +165,46 @@ namespace CodeQuestBackend.Migrations
 
                     b.HasIndex("CategoryId");
 
+                    b.HasIndex("SubcategoryId");
+
                     b.ToTable("Posts");
+                });
+
+            modelBuilder.Entity("CodeQuestBackend.Models.Subcategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Color")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("Subcategories");
                 });
 
             modelBuilder.Entity("CodeQuestBackend.Models.User", b =>
@@ -277,12 +319,34 @@ namespace CodeQuestBackend.Migrations
                         .IsRequired();
 
                     b.HasOne("CodeQuestBackend.Models.Category", "Category")
-                        .WithMany()
+                        .WithMany("Posts")
                         .HasForeignKey("CategoryId");
+
+                    b.HasOne("CodeQuestBackend.Models.Subcategory", null)
+                        .WithMany("Posts")
+                        .HasForeignKey("SubcategoryId");
 
                     b.Navigation("Author");
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("CodeQuestBackend.Models.Subcategory", b =>
+                {
+                    b.HasOne("CodeQuestBackend.Models.Category", "Category")
+                        .WithMany("Subcategories")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("CodeQuestBackend.Models.Category", b =>
+                {
+                    b.Navigation("Posts");
+
+                    b.Navigation("Subcategories");
                 });
 
             modelBuilder.Entity("CodeQuestBackend.Models.Post", b =>
@@ -290,6 +354,11 @@ namespace CodeQuestBackend.Migrations
                     b.Navigation("Comments");
 
                     b.Navigation("Likes");
+                });
+
+            modelBuilder.Entity("CodeQuestBackend.Models.Subcategory", b =>
+                {
+                    b.Navigation("Posts");
                 });
 #pragma warning restore 612, 618
         }

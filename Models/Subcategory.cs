@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CodeQuestBackend.Models;
 
-public class Category
+public class Subcategory
 {
     [Key]
     public int Id { get; set; }
@@ -20,7 +21,14 @@ public class Category
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 
-    // Navigation Properties
-    public virtual ICollection<Subcategory> Subcategories { get; set; } = new List<Subcategory>();
+    // Foreign Key
+    [Required]
+    public int CategoryId { get; set; }
+
+    // Navigation Property
+    [ForeignKey("CategoryId")]
+    public virtual Category Category { get; set; } = null!;
+
+    // Navigation property for posts
     public virtual ICollection<Post> Posts { get; set; } = new List<Post>();
 }
