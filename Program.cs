@@ -17,6 +17,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql
 // Add repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ISubcategoryRepository, SubcategoryRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 
 // Add services

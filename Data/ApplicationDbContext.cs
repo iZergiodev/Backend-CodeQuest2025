@@ -12,6 +12,7 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<User> Users { get; set; }
     public DbSet<Category> Categories { get; set; }
+    public DbSet<Subcategory> Subcategories { get; set; }
     public DbSet<Post> Posts { get; set; }
     public DbSet<Comment> Comments { get; set; }
     public DbSet<Like> Likes { get; set; }
@@ -53,5 +54,12 @@ public class ApplicationDbContext : DbContext
             .WithMany()
             .HasForeignKey(l => l.UserId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // Configure Subcategory relationships
+        modelBuilder.Entity<Subcategory>()
+            .HasOne(s => s.Category)
+            .WithMany(c => c.Subcategories)
+            .HasForeignKey(s => s.CategoryId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
