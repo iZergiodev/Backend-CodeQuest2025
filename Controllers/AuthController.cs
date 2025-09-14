@@ -25,6 +25,46 @@ public class AuthController : ControllerBase
         _userRepository = userRepository;
     }
 
+    [HttpGet("verify")]
+    [Microsoft.AspNetCore.Authorization.Authorize]
+    public IActionResult VerifyToken()
+    {
+        try
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+            {
+                return Unauthorized(new { message = "Invalid token claims" });
+            }
+
+            var user = _userRepository.GetUser(userId);
+            if (user == null)
+            {
+                return Unauthorized(new { message = "User not found" });
+            }
+
+            return Ok(new
+            {
+                user = new
+                {
+                    id = user.Id,
+                    username = user.Username,
+                    email = user.Email,
+                    name = user.Name,
+                    avatar = user.Avatar,
+                    discordId = user.DiscordId,
+                    discordUsername = user.DiscordUsername,
+                    role = user.Role,
+                    starDustPoints = user.StarDustPoints
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+        }
+    }
+
     [HttpGet("discord/login")]
     public IActionResult DiscordLogin()
     {
@@ -48,14 +88,14 @@ public class AuthController : ControllerBase
         {
             var redirectUri = _configuration["Discord:RedirectUri"];
             var user = await _discordAuthService.AuthenticateWithDiscordAsync(code, redirectUri!);
-            
+
             if (user == null)
             {
                 return BadRequest(new { message = "Discord authentication failed" });
             }
 
             var token = GenerateJwtToken(user);
-            
+
             // Return HTML page that will handle the redirect to frontend
             var html = $@"
 <!DOCTYPE html>
@@ -101,7 +141,7 @@ public class AuthController : ControllerBase
     </div>
 </body>
 </html>";
-            
+
             return Content(html, "text/html");
         }
         catch (Exception ex)
@@ -124,7 +164,7 @@ public class AuthController : ControllerBase
     </div>
 </body>
 </html>";
-            
+
             return Content(errorHtml, "text/html");
         }
     }
@@ -137,14 +177,14 @@ public class AuthController : ControllerBase
             // Use the configured redirect URI from settings instead of the one from the request
             var redirectUri = _configuration["Discord:RedirectUri"];
             var user = await _discordAuthService.AuthenticateWithDiscordAsync(request.Code, redirectUri!);
-            
+
             if (user == null)
             {
                 return BadRequest(new { message = "Discord authentication failed" });
             }
 
             var token = GenerateJwtToken(user);
-            
+
             return Ok(new
             {
                 token = token,
@@ -269,7 +309,7 @@ public class AuthController : ControllerBase
 
             var jwtToken = (JwtSecurityToken)validatedToken;
             var userIdClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
-            
+
             if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
             {
                 return userId;
