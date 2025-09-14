@@ -183,7 +183,7 @@ public class DiscordAuthService
             DiscordAccessToken = tokenResponse.AccessToken,
             DiscordRefreshToken = tokenResponse.RefreshToken,
             DiscordTokenExpiresAt = DateTime.UtcNow.AddSeconds(tokenResponse.ExpiresIn),
-            Email = discordUser.Email,
+            Email = discordUser.Email ?? string.Empty,
             Username = discordUser.Username,
             Name = discordUser.GlobalName ?? discordUser.Username,
             Avatar = GetDiscordAvatarUrl(discordUser.Id, discordUser.Avatar),
