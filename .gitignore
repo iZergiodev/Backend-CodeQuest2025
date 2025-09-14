@@ -536,3 +536,6 @@ temp/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Auto-generated solution files
+*.sln

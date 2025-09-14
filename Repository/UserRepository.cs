@@ -62,7 +62,7 @@ public class UserRepository : IUserRepository
         await _db.SaveChangesAsync();
         return user;
     }
-    
+
     public async Task<UserLoginResponseDto> Login(UserLoginDto userLoginDto)
     {
         if (string.IsNullOrEmpty(userLoginDto.Email))

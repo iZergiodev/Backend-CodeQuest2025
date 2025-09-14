@@ -71,14 +71,14 @@ public class DiscordAuthService
 
         var json = await response.Content.ReadAsStringAsync();
         Console.WriteLine($"Discord token response: {json}");
-        
+
         try
         {
             var options = new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
             };
-            
+
             var tokenResponse = JsonSerializer.Deserialize<DiscordTokenResponse>(json, options);
             if (tokenResponse != null)
             {
@@ -88,7 +88,7 @@ public class DiscordAuthService
             {
                 Console.WriteLine("Failed to deserialize token response - tokenResponse is null");
             }
-            
+
             return tokenResponse;
         }
         catch (Exception ex)
@@ -107,17 +107,17 @@ public class DiscordAuthService
         }
 
         Console.WriteLine($"Attempting to get Discord user info with token: {accessToken.Substring(0, Math.Min(20, accessToken.Length))}...");
-        
+
         var request = new HttpRequestMessage(HttpMethod.Get, "https://discord.com/api/users/@me");
-        request.Headers.Authorization = 
+        request.Headers.Authorization =
             new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
 
         Console.WriteLine($"Request headers: Authorization = Bearer {accessToken.Substring(0, Math.Min(20, accessToken.Length))}...");
 
         var response = await _httpClient.SendAsync(request);
-        
+
         Console.WriteLine($"Discord API response: {response.StatusCode}");
-        
+
         if (!response.IsSuccessStatusCode)
         {
             var errorContent = await response.Content.ReadAsStringAsync();
@@ -127,14 +127,14 @@ public class DiscordAuthService
 
         var json = await response.Content.ReadAsStringAsync();
         Console.WriteLine($"Discord user info response: {json}");
-        
+
         try
         {
             var options = new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
             };
-            
+
             var discordUser = JsonSerializer.Deserialize<DiscordUser>(json, options);
             if (discordUser != null)
             {
@@ -144,7 +144,7 @@ public class DiscordAuthService
             {
                 Console.WriteLine("Failed to deserialize Discord user - discordUser is null");
             }
-            
+
             return discordUser;
         }
         catch (Exception ex)
@@ -158,7 +158,7 @@ public class DiscordAuthService
     {
         // Try to find existing user by Discord ID
         var existingUser = await _userRepository.GetByDiscordIdAsync(discordUser.Id);
-        
+
         if (existingUser != null)
         {
             // Update existing user with new token info
@@ -168,7 +168,7 @@ public class DiscordAuthService
             existingUser.DiscordUsername = discordUser.Username;
             existingUser.DiscordDiscriminator = discordUser.Discriminator;
             existingUser.DiscordAvatar = discordUser.Avatar;
-            
+
             await _userRepository.UpdateAsync(existingUser);
             return existingUser;
         }
@@ -183,7 +183,7 @@ public class DiscordAuthService
             DiscordAccessToken = tokenResponse.AccessToken,
             DiscordRefreshToken = tokenResponse.RefreshToken,
             DiscordTokenExpiresAt = DateTime.UtcNow.AddSeconds(tokenResponse.ExpiresIn),
-            Email = discordUser.Email,
+            Email = discordUser.Email ?? string.Empty,
             Username = discordUser.Username,
             Name = discordUser.GlobalName ?? discordUser.Username,
             Avatar = GetDiscordAvatarUrl(discordUser.Id, discordUser.Avatar),
@@ -200,7 +200,7 @@ public class DiscordAuthService
     {
         if (string.IsNullOrEmpty(avatarHash))
             return $"https://cdn.discordapp.com/embed/avatars/{int.Parse(discordId) % 5}.png";
-        
+
         return $"https://cdn.discordapp.com/avatars/{discordId}/{avatarHash}.png";
     }
 
@@ -236,7 +236,7 @@ public class DiscordAuthService
                 user.DiscordAccessToken = tokenResponse.AccessToken;
                 user.DiscordRefreshToken = tokenResponse.RefreshToken ?? user.DiscordRefreshToken;
                 user.DiscordTokenExpiresAt = DateTime.UtcNow.AddSeconds(tokenResponse.ExpiresIn);
-                
+
                 await _userRepository.UpdateAsync(user);
                 return tokenResponse.AccessToken;
             }
