@@ -15,4 +15,5 @@ public class PostDto
     public string? CategoryName { get; set; }
     public int LikesCount { get; set; }
     public int CommentsCount { get; set; }
+    public int VisitsCount { get; set; }
 }
