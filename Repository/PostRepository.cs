@@ -149,4 +149,9 @@ public class PostRepository : IPostRepository
             await _context.SaveChangesAsync();
         }
     }
+
+    public async Task<int> GetPostCountByCategoryAsync(int categoryId)
+    {
+        return await _context.Posts.CountAsync(p => p.CategoryId == categoryId);
+    }
 }

@@ -9,12 +9,16 @@ public class PostService
     private readonly IPostRepository _postRepository;
     private readonly ICategoryRepository _categoryRepository;
     private readonly IUserRepository _userRepository;
+    private readonly PostRankingService _rankingService;
+    private readonly StarDustPointsService _starDustPointsService;
 
-    public PostService(IPostRepository postRepository, ICategoryRepository categoryRepository, IUserRepository userRepository)
+    public PostService(IPostRepository postRepository, ICategoryRepository categoryRepository, IUserRepository userRepository, PostRankingService rankingService, StarDustPointsService starDustPointsService)
     {
         _postRepository = postRepository;
         _categoryRepository = categoryRepository;
         _userRepository = userRepository;
+        _rankingService = rankingService;
+        _starDustPointsService = starDustPointsService;
     }
 
     public async Task<ICollection<PostDto>> GetAllPostsAsync()
@@ -58,6 +62,10 @@ public class PostService
         }
 
         var post = await _postRepository.CreateAsync(createPostDto, authorId);
+
+        // Award points for creating a post
+        await _starDustPointsService.OnPostCreatedAsync(authorId, post.Id);
+
         return MapToPostDto(post);
     }
 
@@ -98,7 +106,41 @@ public class PostService
         }
 
         await _postRepository.IncrementVisitsCountAsync(id);
+
+        // Check for visit milestones and award points
+        var post = await _postRepository.GetByIdAsync(id);
+        if (post != null)
+        {
+            await _starDustPointsService.OnPostVisitMilestoneAsync(post.AuthorId, id, post.VisitsCount);
+        }
+
         return true;
+    }
+
+    public async Task<ICollection<PostDto>> GetRankedPostsAsync()
+    {
+        var posts = await _postRepository.GetAllAsync();
+        var postDtos = posts.Select(MapToPostDto).ToList();
+
+        var authorIds = postDtos.Select(p => p.AuthorId).Distinct().ToList();
+        var authors = await _userRepository.GetUsersByIdsAsync(authorIds);
+        var authorStarDustPoints = authors.ToDictionary(u => u.Id, u => u.StarDustPoints);
+
+        var rankedPosts = _rankingService.RankPosts(postDtos, authorStarDustPoints);
+        return rankedPosts.ToList();
+    }
+
+    public async Task<ICollection<PostDto>> GetRankedPostsByCategoryAsync(int categoryId)
+    {
+        var posts = await _postRepository.GetByCategoryIdAsync(categoryId);
+        var postDtos = posts.Select(MapToPostDto).ToList();
+
+        var authorIds = postDtos.Select(p => p.AuthorId).Distinct().ToList();
+        var authors = await _userRepository.GetUsersByIdsAsync(authorIds);
+        var authorStarDustPoints = authors.ToDictionary(u => u.Id, u => u.StarDustPoints);
+
+        var rankedPosts = _rankingService.RankPosts(postDtos, authorStarDustPoints);
+        return rankedPosts.ToList();
     }
 
     private static PostDto MapToPostDto(Post post)

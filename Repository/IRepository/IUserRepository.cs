@@ -15,4 +15,6 @@ public interface IUserRepository
     Task<User> CreateAsync(User user);
     Task<User> UpdateAsync(User user);
     Task<bool> ExistsAsync(int id);
+    Task<ICollection<User>> GetUsersByIdsAsync(ICollection<int> userIds);
+    Task<User?> GetByIdAsync(int id);
 }
