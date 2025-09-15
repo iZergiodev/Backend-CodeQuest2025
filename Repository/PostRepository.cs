@@ -20,6 +20,7 @@ public class PostRepository : IPostRepository
         return await _context.Posts
             .Include(p => p.Author)
             .Include(p => p.Category)
+            .Include(p => p.Subcategory)
             .OrderByDescending(p => p.CreatedAt)
             .ToListAsync();
     }
@@ -29,6 +30,7 @@ public class PostRepository : IPostRepository
         return await _context.Posts
             .Include(p => p.Author)
             .Include(p => p.Category)
+            .Include(p => p.Subcategory)
             .Include(p => p.Comments)
             .Include(p => p.Likes)
             .FirstOrDefaultAsync(p => p.Id == id);
@@ -39,6 +41,7 @@ public class PostRepository : IPostRepository
         return await _context.Posts
             .Include(p => p.Author)
             .Include(p => p.Category)
+            .Include(p => p.Subcategory)
             .Where(p => p.AuthorId == authorId)
             .OrderByDescending(p => p.CreatedAt)
             .ToListAsync();
@@ -49,6 +52,7 @@ public class PostRepository : IPostRepository
         return await _context.Posts
             .Include(p => p.Author)
             .Include(p => p.Category)
+            .Include(p => p.Subcategory)
             .Where(p => p.CategoryId == categoryId)
             .OrderByDescending(p => p.CreatedAt)
             .ToListAsync();
@@ -62,8 +66,10 @@ public class PostRepository : IPostRepository
             Content = createPostDto.Content,
             Summary = createPostDto.Summary,
             ImageUrl = createPostDto.ImageUrl,
+            Tags = createPostDto.Tags,
             AuthorId = authorId,
             CategoryId = createPostDto.CategoryId,
+            SubcategoryId = createPostDto.SubcategoryId,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             LikesCount = 0,
@@ -87,7 +93,9 @@ public class PostRepository : IPostRepository
         post.Content = updatePostDto.Content;
         post.Summary = updatePostDto.Summary;
         post.ImageUrl = updatePostDto.ImageUrl;
+        post.Tags = updatePostDto.Tags;
         post.CategoryId = updatePostDto.CategoryId;
+        post.SubcategoryId = updatePostDto.SubcategoryId;
         post.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
