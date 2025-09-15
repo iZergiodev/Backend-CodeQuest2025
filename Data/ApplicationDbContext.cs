@@ -16,6 +16,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Post> Posts { get; set; }
     public DbSet<Comment> Comments { get; set; }
     public DbSet<Like> Likes { get; set; }
+    public DbSet<StarDustPointsHistory> StarDustPointsHistory { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

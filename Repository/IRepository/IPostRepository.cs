@@ -16,4 +16,5 @@ public interface IPostRepository
     Task UpdateLikesCountAsync(int postId);
     Task UpdateCommentsCountAsync(int postId);
     Task IncrementVisitsCountAsync(int postId);
+    Task<int> GetPostCountByCategoryAsync(int categoryId);
 }

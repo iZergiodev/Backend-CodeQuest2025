@@ -173,4 +173,32 @@ public class PostsController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, $"Error al registrar la visita: {ex.Message}");
         }
     }
+
+    [HttpGet("ranked")]
+    public async Task<IActionResult> GetRankedPosts()
+    {
+        try
+        {
+            var posts = await _postService.GetRankedPostsAsync();
+            return Ok(posts);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Error al obtener los posts rankeados: {ex.Message}");
+        }
+    }
+
+    [HttpGet("ranked/category/{categoryId:int}")]
+    public async Task<IActionResult> GetRankedPostsByCategory(int categoryId)
+    {
+        try
+        {
+            var posts = await _postService.GetRankedPostsByCategoryAsync(categoryId);
+            return Ok(posts);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Error al obtener los posts rankeados por categoría: {ex.Message}");
+        }
+    }
 }

@@ -150,4 +150,16 @@ public class UserRepository : IUserRepository
         return await _db.Users.AnyAsync(u => u.Id == id);
     }
 
+    public async Task<ICollection<User>> GetUsersByIdsAsync(ICollection<int> userIds)
+    {
+        return await _db.Users
+            .Where(u => userIds.Contains(u.Id))
+            .ToListAsync();
+    }
+
+    public async Task<User?> GetByIdAsync(int id)
+    {
+        return await _db.Users.FirstOrDefaultAsync(u => u.Id == id);
+    }
+
 }
