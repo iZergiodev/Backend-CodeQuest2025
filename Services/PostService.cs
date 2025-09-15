@@ -90,6 +90,17 @@ public class PostService
         return await _postRepository.ExistsAsync(id);
     }
 
+    public async Task<bool> IncrementVisitsAsync(int id)
+    {
+        if (!await _postRepository.ExistsAsync(id))
+        {
+            return false;
+        }
+
+        await _postRepository.IncrementVisitsCountAsync(id);
+        return true;
+    }
+
     private static PostDto MapToPostDto(Post post)
     {
         return new PostDto
@@ -111,7 +122,8 @@ public class PostService
             SubcategoryColor = post.Subcategory?.Color,
             Tags = post.Tags,
             LikesCount = post.LikesCount,
-            CommentsCount = post.CommentsCount
+            CommentsCount = post.CommentsCount,
+            VisitsCount = post.VisitsCount
         };
     }
 }
