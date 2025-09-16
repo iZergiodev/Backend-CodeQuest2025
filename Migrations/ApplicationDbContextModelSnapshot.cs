@@ -272,6 +272,33 @@ namespace CodeQuestBackend.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("CodeQuestBackend.Models.UserSubcategoryFollow", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("FollowedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("SubcategoryId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SubcategoryId");
+
+                    b.HasIndex("UserId", "SubcategoryId")
+                        .IsUnique();
+
+                    b.ToTable("UserSubcategoryFollows");
+                });
+
             modelBuilder.Entity("CodeQuestBackend.Models.Comment", b =>
                 {
                     b.HasOne("CodeQuestBackend.Models.User", "Author")
@@ -322,13 +349,15 @@ namespace CodeQuestBackend.Migrations
                         .WithMany("Posts")
                         .HasForeignKey("CategoryId");
 
-                    b.HasOne("CodeQuestBackend.Models.Subcategory", null)
+                    b.HasOne("CodeQuestBackend.Models.Subcategory", "Subcategory")
                         .WithMany("Posts")
                         .HasForeignKey("SubcategoryId");
 
                     b.Navigation("Author");
 
                     b.Navigation("Category");
+
+                    b.Navigation("Subcategory");
                 });
 
             modelBuilder.Entity("CodeQuestBackend.Models.Subcategory", b =>
@@ -340,6 +369,25 @@ namespace CodeQuestBackend.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("CodeQuestBackend.Models.UserSubcategoryFollow", b =>
+                {
+                    b.HasOne("CodeQuestBackend.Models.Subcategory", "Subcategory")
+                        .WithMany()
+                        .HasForeignKey("SubcategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CodeQuestBackend.Models.User", "User")
+                        .WithMany("FollowedSubcategories")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Subcategory");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("CodeQuestBackend.Models.Category", b =>
@@ -359,6 +407,11 @@ namespace CodeQuestBackend.Migrations
             modelBuilder.Entity("CodeQuestBackend.Models.Subcategory", b =>
                 {
                     b.Navigation("Posts");
+                });
+
+            modelBuilder.Entity("CodeQuestBackend.Models.User", b =>
+                {
+                    b.Navigation("FollowedSubcategories");
                 });
 #pragma warning restore 612, 618
         }

@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using CodeQuestBackend.Services;
 using CodeQuestBackend.Data;
+using CodeQuestBackend;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,12 +20,14 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ISubcategoryRepository, SubcategoryRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
+builder.Services.AddScoped<IUserFollowRepository, UserFollowRepository>();
 
 // Add services
 builder.Services.AddHttpClient<DiscordAuthService>();
 builder.Services.AddScoped<DiscordAuthService>();
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<PostService>();
+builder.Services.AddScoped<UserFollowService>();
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
@@ -70,6 +73,16 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// Ensure database is created and migrations are applied
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    context.Database.Migrate();
+    
+    // Seed the database
+    await SeedDatabase.SeedAsync(context);
+}
 
 // Configure the HTTP request pipeline.
 app.UseSwagger();
