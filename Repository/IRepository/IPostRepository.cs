@@ -15,4 +15,6 @@ public interface IPostRepository
     Task<bool> ExistsAsync(int id);
     Task UpdateLikesCountAsync(int postId);
     Task UpdateCommentsCountAsync(int postId);
+    Task IncrementVisitsCountAsync(int postId);
+    Task<int> GetPostCountByCategoryAsync(int categoryId);
 }

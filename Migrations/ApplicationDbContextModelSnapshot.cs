@@ -151,6 +151,10 @@ namespace CodeQuestBackend.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.PrimitiveCollection<string[]>("Tags")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -158,6 +162,9 @@ namespace CodeQuestBackend.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("VisitsCount")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -168,6 +175,49 @@ namespace CodeQuestBackend.Migrations
                     b.HasIndex("SubcategoryId");
 
                     b.ToTable("Posts");
+                });
+
+            modelBuilder.Entity("CodeQuestBackend.Models.StarDustPointsHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("Points")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("RelatedCommentId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("RelatedPostId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RelatedCommentId");
+
+                    b.HasIndex("RelatedPostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("StarDustPointsHistory");
                 });
 
             modelBuilder.Entity("CodeQuestBackend.Models.Subcategory", b =>
@@ -358,6 +408,29 @@ namespace CodeQuestBackend.Migrations
                     b.Navigation("Category");
 
                     b.Navigation("Subcategory");
+                });
+
+            modelBuilder.Entity("CodeQuestBackend.Models.StarDustPointsHistory", b =>
+                {
+                    b.HasOne("CodeQuestBackend.Models.Comment", "RelatedComment")
+                        .WithMany()
+                        .HasForeignKey("RelatedCommentId");
+
+                    b.HasOne("CodeQuestBackend.Models.Post", "RelatedPost")
+                        .WithMany()
+                        .HasForeignKey("RelatedPostId");
+
+                    b.HasOne("CodeQuestBackend.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("RelatedComment");
+
+                    b.Navigation("RelatedPost");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("CodeQuestBackend.Models.Subcategory", b =>

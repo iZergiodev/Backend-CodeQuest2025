@@ -154,4 +154,51 @@ public class PostsController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, $"Error al eliminar el post: {ex.Message}");
         }
     }
+
+    [HttpPost("{id:int}/visit")]
+    public async Task<IActionResult> IncrementVisits(int id)
+    {
+        try
+        {
+            var success = await _postService.IncrementVisitsAsync(id);
+            if (!success)
+            {
+                return NotFound($"El post con ID {id} no existe");
+            }
+
+            return Ok(new { message = "Visita registrada correctamente" });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Error al registrar la visita: {ex.Message}");
+        }
+    }
+
+    [HttpGet("ranked")]
+    public async Task<IActionResult> GetRankedPosts()
+    {
+        try
+        {
+            var posts = await _postService.GetRankedPostsAsync();
+            return Ok(posts);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Error al obtener los posts rankeados: {ex.Message}");
+        }
+    }
+
+    [HttpGet("ranked/category/{categoryId:int}")]
+    public async Task<IActionResult> GetRankedPostsByCategory(int categoryId)
+    {
+        try
+        {
+            var posts = await _postService.GetRankedPostsByCategoryAsync(categoryId);
+            return Ok(posts);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Error al obtener los posts rankeados por categoría: {ex.Message}");
+        }
+    }
 }

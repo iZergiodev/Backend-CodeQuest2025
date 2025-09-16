@@ -21,11 +21,14 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ISubcategoryRepository, SubcategoryRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<IUserFollowRepository, UserFollowRepository>();
+builder.Services.AddScoped<IStarDustPointsHistoryRepository, StarDustPointsHistoryRepository>();
 
 // Add services
 builder.Services.AddHttpClient<DiscordAuthService>();
 builder.Services.AddScoped<DiscordAuthService>();
 builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<PostRankingService>();
+builder.Services.AddScoped<StarDustPointsService>();
 builder.Services.AddScoped<PostService>();
 builder.Services.AddScoped<UserFollowService>();
 

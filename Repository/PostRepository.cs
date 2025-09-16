@@ -73,7 +73,8 @@ public class PostRepository : IPostRepository
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             LikesCount = 0,
-            CommentsCount = 0
+            CommentsCount = 0,
+            VisitsCount = 0
         };
 
         _context.Posts.Add(post);
@@ -137,5 +138,20 @@ public class PostRepository : IPostRepository
             post.CommentsCount = await _context.Comments.CountAsync(c => c.PostId == postId);
             await _context.SaveChangesAsync();
         }
+    }
+
+    public async Task IncrementVisitsCountAsync(int postId)
+    {
+        var post = await _context.Posts.FirstOrDefaultAsync(p => p.Id == postId);
+        if (post != null)
+        {
+            post.VisitsCount++;
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    public async Task<int> GetPostCountByCategoryAsync(int categoryId)
+    {
+        return await _context.Posts.CountAsync(p => p.CategoryId == categoryId);
     }
 }

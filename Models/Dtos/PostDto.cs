@@ -20,4 +20,5 @@ public class PostDto
     public string[] Tags { get; set; } = Array.Empty<string>();
     public int LikesCount { get; set; }
     public int CommentsCount { get; set; }
+    public int VisitsCount { get; set; }
 }

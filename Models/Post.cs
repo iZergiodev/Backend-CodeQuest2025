@@ -49,4 +49,5 @@ public class Post
     // Counters
     public int LikesCount { get; set; } = 0;
     public int CommentsCount { get; set; } = 0;
+    public int VisitsCount { get; set; } = 0;
 }
