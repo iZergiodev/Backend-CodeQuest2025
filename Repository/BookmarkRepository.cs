@@ -89,6 +89,7 @@ namespace CodeQuestBackend.Repository
                         CreatedAt = b.Post.CreatedAt,
                         UpdatedAt = b.Post.UpdatedAt,
                         AuthorId = b.Post.AuthorId,
+                        AuthorAvatar = b.Post.Author.Avatar,
                         AuthorName = b.Post.Author.Name ?? b.Post.Author.Username ?? "Unknown",
                         CategoryId = b.Post.CategoryId,
                         CategoryName = b.Post.Category != null ? b.Post.Category.Name : null,

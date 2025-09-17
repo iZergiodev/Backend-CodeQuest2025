@@ -45,6 +45,7 @@ public class Post
 
     public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
     public virtual ICollection<Like> Likes { get; set; } = new List<Like>();
+    public virtual ICollection<Bookmark> Bookmarks { get; set; } = new List<Bookmark>();
 
     // Counters
     public int LikesCount { get; set; } = 0;
