@@ -46,7 +46,7 @@ namespace CodeQuestBackend.Migrations
                     b.HasIndex("UserId", "PostId")
                         .IsUnique();
 
-                    b.ToTable("Bookmarks");
+                    b.ToTable("Bookmarks", (string)null);
                 });
 
             modelBuilder.Entity("CodeQuestBackend.Models.Category", b =>
@@ -78,7 +78,7 @@ namespace CodeQuestBackend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("CodeQuestBackend.Models.Comment", b =>
@@ -111,7 +111,7 @@ namespace CodeQuestBackend.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("Comments");
+                    b.ToTable("Comments", (string)null);
                 });
 
             modelBuilder.Entity("CodeQuestBackend.Models.Like", b =>
@@ -138,7 +138,7 @@ namespace CodeQuestBackend.Migrations
                     b.HasIndex("UserId", "PostId")
                         .IsUnique();
 
-                    b.ToTable("Likes");
+                    b.ToTable("Likes", (string)null);
                 });
 
             modelBuilder.Entity("CodeQuestBackend.Models.Post", b =>
@@ -201,7 +201,7 @@ namespace CodeQuestBackend.Migrations
 
                     b.HasIndex("SubcategoryId");
 
-                    b.ToTable("Posts");
+                    b.ToTable("Posts", (string)null);
                 });
 
             modelBuilder.Entity("CodeQuestBackend.Models.StarDustPointsHistory", b =>
@@ -244,7 +244,7 @@ namespace CodeQuestBackend.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("StarDustPointsHistory");
+                    b.ToTable("StarDustPointsHistory", (string)null);
                 });
 
             modelBuilder.Entity("CodeQuestBackend.Models.Subcategory", b =>
@@ -281,7 +281,7 @@ namespace CodeQuestBackend.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Subcategories");
+                    b.ToTable("Subcategories", (string)null);
                 });
 
             modelBuilder.Entity("CodeQuestBackend.Models.User", b =>
@@ -346,7 +346,7 @@ namespace CodeQuestBackend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("CodeQuestBackend.Models.UserSubcategoryFollow", b =>
@@ -373,7 +373,7 @@ namespace CodeQuestBackend.Migrations
                     b.HasIndex("UserId", "SubcategoryId")
                         .IsUnique();
 
-                    b.ToTable("UserSubcategoryFollows");
+                    b.ToTable("UserSubcategoryFollows", (string)null);
                 });
 
             modelBuilder.Entity("CodeQuestBackend.Models.Bookmark", b =>
