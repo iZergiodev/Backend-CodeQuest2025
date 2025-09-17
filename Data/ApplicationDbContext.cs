@@ -19,6 +19,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<UserSubcategoryFollow> UserSubcategoryFollows { get; set; }
     public DbSet<Bookmark> Bookmarks { get; set; }
     public DbSet<StarDustPointsHistory> StarDustPointsHistory { get; set; }
+    public DbSet<Notification> Notifications { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -119,5 +120,30 @@ public class ApplicationDbContext : DbContext
             .WithMany()
             .HasForeignKey(sdph => sdph.RelatedCommentId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        // Configure Notification relationships
+        modelBuilder.Entity<Notification>()
+            .HasOne(n => n.User)
+            .WithMany()
+            .HasForeignKey(n => n.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Notification>()
+            .HasOne(n => n.RelatedPost)
+            .WithMany()
+            .HasForeignKey(n => n.RelatedPostId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Notification>()
+            .HasOne(n => n.RelatedComment)
+            .WithMany()
+            .HasForeignKey(n => n.RelatedCommentId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Notification>()
+            .HasOne(n => n.RelatedUser)
+            .WithMany()
+            .HasForeignKey(n => n.RelatedUserId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

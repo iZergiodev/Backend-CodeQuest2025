@@ -25,6 +25,7 @@ builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<IUserFollowRepository, UserFollowRepository>();
 builder.Services.AddScoped<IBookmarkRepository, BookmarkRepository>();
 builder.Services.AddScoped<IStarDustPointsHistoryRepository, StarDustPointsHistoryRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
 // Add services
 builder.Services.AddHttpClient<DiscordAuthService>();
@@ -36,6 +37,8 @@ builder.Services.AddScoped<PostService>();
 builder.Services.AddScoped<CommentService>();
 builder.Services.AddScoped<UserFollowService>();
 builder.Services.AddScoped<BookmarkService>();
+builder.Services.AddScoped<NotificationService>();
+builder.Services.AddSingleton<NotificationStreamService>();
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
@@ -47,7 +50,9 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins("http://localhost:3000", "http://localhost:8080", "http://localhost:5173")
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .SetIsOriginAllowed(_ => true)
+              .AllowCredentials();
     });
 });
 
@@ -86,7 +91,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await SeedDatabase.SeedAsync(context);
+    // await SeedDatabase.SeedAsync(context); // Commented out - SeedDatabase class not found
 }
 
 // Configure the HTTP request pipeline.

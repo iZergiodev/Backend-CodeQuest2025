@@ -132,6 +132,7 @@ public class UserFollowRepository : IUserFollowRepository
     {
         var query = _context.Subcategories
             .Include(s => s.Category)
+            .Where(s => s.Category != null)
             .GroupJoin(
                 _context.UserSubcategoryFollows,
                 s => s.Id,
@@ -143,7 +144,7 @@ public class UserFollowRepository : IUserFollowRepository
                 Id = x.Subcategory.Id,
                 Name = x.Subcategory.Name,
                 Description = x.Subcategory.Description,
-                Color = x.Subcategory.Color,
+                Color = x.Subcategory.Color == null ? "#6B7280" : x.Subcategory.Color,
                 CreatedAt = x.Subcategory.CreatedAt,
                 UpdatedAt = x.Subcategory.UpdatedAt,
                 CategoryId = x.Subcategory.CategoryId,
@@ -160,6 +161,7 @@ public class UserFollowRepository : IUserFollowRepository
         var result = await _context.Subcategories
             .Where(s => s.Id == subcategoryId)
             .Include(s => s.Category)
+            .Where(s => s.Category != null)
             .GroupJoin(
                 _context.UserSubcategoryFollows,
                 s => s.Id,
@@ -171,7 +173,7 @@ public class UserFollowRepository : IUserFollowRepository
                 Id = x.Subcategory.Id,
                 Name = x.Subcategory.Name,
                 Description = x.Subcategory.Description,
-                Color = x.Subcategory.Color,
+                Color = x.Subcategory.Color == null ? "#6B7280" : x.Subcategory.Color,
                 CreatedAt = x.Subcategory.CreatedAt,
                 UpdatedAt = x.Subcategory.UpdatedAt,
                 CategoryId = x.Subcategory.CategoryId,
@@ -207,6 +209,13 @@ public class UserFollowRepository : IUserFollowRepository
                 CategoryId = usf.Subcategory.CategoryId,
                 CategoryName = usf.Subcategory.Category.Name
             })
+            .ToListAsync();
+    }
+
+    public async Task<ICollection<UserSubcategoryFollow>> GetFollowersBySubcategoryIdAsync(int subcategoryId)
+    {
+        return await _context.UserSubcategoryFollows
+            .Where(usf => usf.SubcategoryId == subcategoryId)
             .ToListAsync();
     }
 }

@@ -11,14 +11,16 @@ public class PostService
     private readonly IUserRepository _userRepository;
     private readonly PostRankingService _rankingService;
     private readonly StarDustPointsService _starDustPointsService;
+    private readonly NotificationService _notificationService;
 
-    public PostService(IPostRepository postRepository, ICategoryRepository categoryRepository, IUserRepository userRepository, PostRankingService rankingService, StarDustPointsService starDustPointsService)
+    public PostService(IPostRepository postRepository, ICategoryRepository categoryRepository, IUserRepository userRepository, PostRankingService rankingService, StarDustPointsService starDustPointsService, NotificationService notificationService)
     {
         _postRepository = postRepository;
         _categoryRepository = categoryRepository;
         _userRepository = userRepository;
         _rankingService = rankingService;
         _starDustPointsService = starDustPointsService;
+        _notificationService = notificationService;
     }
 
     public async Task<ICollection<PostDto>> GetAllPostsAsync()
@@ -65,6 +67,16 @@ public class PostService
 
         // Award points for creating a post
         await _starDustPointsService.OnPostCreatedAsync(authorId, post.Id);
+
+        // Create notifications for followers of the subcategory
+        if (post.SubcategoryId.HasValue)
+        {
+            await _notificationService.CreatePostInFollowedSubcategoryNotificationAsync(
+                authorId,
+                post.Id,
+                post.SubcategoryId.Value
+            );
+        }
 
         return MapToPostDto(post);
     }
