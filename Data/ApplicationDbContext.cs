@@ -100,5 +100,24 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Bookmark>()
             .HasIndex(b => new { b.UserId, b.PostId })
             .IsUnique();
+
+        // Configure StarDustPointsHistory relationships
+        modelBuilder.Entity<StarDustPointsHistory>()
+            .HasOne(sdph => sdph.User)
+            .WithMany()
+            .HasForeignKey(sdph => sdph.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<StarDustPointsHistory>()
+            .HasOne(sdph => sdph.RelatedPost)
+            .WithMany()
+            .HasForeignKey(sdph => sdph.RelatedPostId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<StarDustPointsHistory>()
+            .HasOne(sdph => sdph.RelatedComment)
+            .WithMany()
+            .HasForeignKey(sdph => sdph.RelatedCommentId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }
