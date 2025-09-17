@@ -17,4 +17,10 @@ public interface IPostRepository
     Task UpdateCommentsCountAsync(int postId);
     Task IncrementVisitsCountAsync(int postId);
     Task<int> GetPostCountByCategoryAsync(int categoryId);
+
+    // Paginated methods
+    Task<PaginatedResultDto<Post>> GetAllPaginatedAsync(int page, int pageSize);
+    Task<PaginatedResultDto<Post>> GetByAuthorIdPaginatedAsync(int authorId, int page, int pageSize);
+    Task<PaginatedResultDto<Post>> GetByCategoryIdPaginatedAsync(int categoryId, int page, int pageSize);
+    Task<PaginatedResultDto<Post>> GetBySubcategoryIdPaginatedAsync(int subcategoryId, int page, int pageSize);
 }

@@ -155,6 +155,117 @@ public class PostService
         return rankedPosts.ToList();
     }
 
+    // Paginated methods
+    public async Task<PaginatedResultDto<PostDto>> GetAllPostsPaginatedAsync(int page, int pageSize)
+    {
+        var result = await _postRepository.GetAllPaginatedAsync(page, pageSize);
+
+        return new PaginatedResultDto<PostDto>
+        {
+            Data = result.Data.Select(MapToPostDto).ToList(),
+            Page = result.Page,
+            PageSize = result.PageSize,
+            TotalItems = result.TotalItems,
+            TotalPages = result.TotalPages,
+            HasNextPage = result.HasNextPage,
+            HasPreviousPage = result.HasPreviousPage
+        };
+    }
+
+    public async Task<PaginatedResultDto<PostDto>> GetPostsByAuthorIdPaginatedAsync(int authorId, int page, int pageSize)
+    {
+        var result = await _postRepository.GetByAuthorIdPaginatedAsync(authorId, page, pageSize);
+
+        return new PaginatedResultDto<PostDto>
+        {
+            Data = result.Data.Select(MapToPostDto).ToList(),
+            Page = result.Page,
+            PageSize = result.PageSize,
+            TotalItems = result.TotalItems,
+            TotalPages = result.TotalPages,
+            HasNextPage = result.HasNextPage,
+            HasPreviousPage = result.HasPreviousPage
+        };
+    }
+
+    public async Task<PaginatedResultDto<PostDto>> GetPostsByCategoryIdPaginatedAsync(int categoryId, int page, int pageSize)
+    {
+        var result = await _postRepository.GetByCategoryIdPaginatedAsync(categoryId, page, pageSize);
+
+        return new PaginatedResultDto<PostDto>
+        {
+            Data = result.Data.Select(MapToPostDto).ToList(),
+            Page = result.Page,
+            PageSize = result.PageSize,
+            TotalItems = result.TotalItems,
+            TotalPages = result.TotalPages,
+            HasNextPage = result.HasNextPage,
+            HasPreviousPage = result.HasPreviousPage
+        };
+    }
+
+    public async Task<PaginatedResultDto<PostDto>> GetPostsBySubcategoryIdPaginatedAsync(int subcategoryId, int page, int pageSize)
+    {
+        var result = await _postRepository.GetBySubcategoryIdPaginatedAsync(subcategoryId, page, pageSize);
+
+        return new PaginatedResultDto<PostDto>
+        {
+            Data = result.Data.Select(MapToPostDto).ToList(),
+            Page = result.Page,
+            PageSize = result.PageSize,
+            TotalItems = result.TotalItems,
+            TotalPages = result.TotalPages,
+            HasNextPage = result.HasNextPage,
+            HasPreviousPage = result.HasPreviousPage
+        };
+    }
+
+    public async Task<PaginatedResultDto<PostDto>> GetRankedPostsPaginatedAsync(int page, int pageSize)
+    {
+        var result = await _postRepository.GetAllPaginatedAsync(page, pageSize);
+        var postDtos = result.Data.Select(MapToPostDto).ToList();
+
+        var authorIds = postDtos.Select(p => p.AuthorId).Distinct().ToList();
+        var authors = await _userRepository.GetUsersByIdsAsync(authorIds);
+        var authorStarDustPoints = authors.ToDictionary(u => u.Id, u => u.StarDustPoints);
+
+        var rankedPosts = _rankingService.RankPosts(postDtos, authorStarDustPoints);
+
+        return new PaginatedResultDto<PostDto>
+        {
+            Data = rankedPosts.ToList(),
+            Page = result.Page,
+            PageSize = result.PageSize,
+            TotalItems = result.TotalItems,
+            TotalPages = result.TotalPages,
+            HasNextPage = result.HasNextPage,
+            HasPreviousPage = result.HasPreviousPage
+        };
+    }
+
+    public async Task<PaginatedResultDto<PostDto>> GetRankedPostsByCategoryPaginatedAsync(int categoryId, int page, int pageSize)
+    {
+        var result = await _postRepository.GetByCategoryIdPaginatedAsync(categoryId, page, pageSize);
+        var postDtos = result.Data.Select(MapToPostDto).ToList();
+
+        var authorIds = postDtos.Select(p => p.AuthorId).Distinct().ToList();
+        var authors = await _userRepository.GetUsersByIdsAsync(authorIds);
+        var authorStarDustPoints = authors.ToDictionary(u => u.Id, u => u.StarDustPoints);
+
+        var rankedPosts = _rankingService.RankPosts(postDtos, authorStarDustPoints);
+
+        return new PaginatedResultDto<PostDto>
+        {
+            Data = rankedPosts.ToList(),
+            Page = result.Page,
+            PageSize = result.PageSize,
+            TotalItems = result.TotalItems,
+            TotalPages = result.TotalPages,
+            HasNextPage = result.HasNextPage,
+            HasPreviousPage = result.HasPreviousPage
+        };
+    }
+
     private static PostDto MapToPostDto(Post post)
     {
         return new PostDto
