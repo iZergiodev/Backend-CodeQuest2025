@@ -22,6 +22,33 @@ namespace CodeQuestBackend.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("CodeQuestBackend.Models.Bookmark", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId", "PostId")
+                        .IsUnique();
+
+                    b.ToTable("Bookmarks");
+                });
+
             modelBuilder.Entity("CodeQuestBackend.Models.Category", b =>
                 {
                     b.Property<int>("Id")
@@ -349,6 +376,25 @@ namespace CodeQuestBackend.Migrations
                     b.ToTable("UserSubcategoryFollows");
                 });
 
+            modelBuilder.Entity("CodeQuestBackend.Models.Bookmark", b =>
+                {
+                    b.HasOne("CodeQuestBackend.Models.Post", "Post")
+                        .WithMany("Bookmarks")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CodeQuestBackend.Models.User", "User")
+                        .WithMany("Bookmarks")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("CodeQuestBackend.Models.Comment", b =>
                 {
                     b.HasOne("CodeQuestBackend.Models.User", "Author")
@@ -472,6 +518,8 @@ namespace CodeQuestBackend.Migrations
 
             modelBuilder.Entity("CodeQuestBackend.Models.Post", b =>
                 {
+                    b.Navigation("Bookmarks");
+
                     b.Navigation("Comments");
 
                     b.Navigation("Likes");
@@ -484,6 +532,8 @@ namespace CodeQuestBackend.Migrations
 
             modelBuilder.Entity("CodeQuestBackend.Models.User", b =>
                 {
+                    b.Navigation("Bookmarks");
+
                     b.Navigation("FollowedSubcategories");
                 });
 #pragma warning restore 612, 618

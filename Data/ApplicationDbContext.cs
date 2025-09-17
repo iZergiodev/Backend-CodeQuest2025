@@ -17,6 +17,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Comment> Comments { get; set; }
     public DbSet<Like> Likes { get; set; }
     public DbSet<UserSubcategoryFollow> UserSubcategoryFollows { get; set; }
+    public DbSet<Bookmark> Bookmarks { get; set; }
     public DbSet<StarDustPointsHistory> StarDustPointsHistory { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -80,6 +81,24 @@ public class ApplicationDbContext : DbContext
         // Configure unique constraints for follows (one follow per user per subcategory)
         modelBuilder.Entity<UserSubcategoryFollow>()
             .HasIndex(usf => new { usf.UserId, usf.SubcategoryId })
+            .IsUnique();
+
+        // Configure Bookmark relationships
+        modelBuilder.Entity<Bookmark>()
+            .HasOne(b => b.User)
+            .WithMany(u => u.Bookmarks)
+            .HasForeignKey(b => b.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Bookmark>()
+            .HasOne(b => b.Post)
+            .WithMany(p => p.Bookmarks)
+            .HasForeignKey(b => b.PostId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Configure unique constraint for Bookmarks (one bookmark per user per post)
+        modelBuilder.Entity<Bookmark>()
+            .HasIndex(b => new { b.UserId, b.PostId })
             .IsUnique();
     }
 }
