@@ -55,7 +55,8 @@ public class AuthController : ControllerBase
                     discordId = user.DiscordId,
                     discordUsername = user.DiscordUsername,
                     role = user.Role,
-                    starDustPoints = user.StarDustPoints
+                    starDustPoints = user.StarDustPoints,
+                    createdAt = user.CreatedAt
                 }
             });
         }
@@ -125,7 +126,8 @@ public class AuthController : ControllerBase
                     discordId: '{user.DiscordId}',
                     discordUsername: '{user.DiscordUsername}',
                     role: '{user.Role}',
-                    starDustPoints: {user.StarDustPoints}
+                    starDustPoints: {user.StarDustPoints},
+                    createdAt: '{user.CreatedAt}'
                 }}
             }};
             
@@ -198,7 +200,8 @@ public class AuthController : ControllerBase
                     discordId = user.DiscordId,
                     discordUsername = user.DiscordUsername,
                     role = user.Role,
-                    starDustPoints = user.StarDustPoints
+                    starDustPoints = user.StarDustPoints,
+                    createdAt = user.CreatedAt
                 }
             });
         }
@@ -250,7 +253,8 @@ public class AuthController : ControllerBase
                     discordId = user.DiscordId,
                     discordUsername = user.DiscordUsername,
                     role = user.Role,
-                    starDustPoints = user.StarDustPoints
+                    starDustPoints = user.StarDustPoints,
+                    createdAt = user.CreatedAt
                 }
             });
         }
@@ -273,7 +277,8 @@ public class AuthController : ControllerBase
             new Claim(ClaimTypes.Name, user.Username ?? ""),
             new Claim(ClaimTypes.Email, user.Email),
             new Claim("discord_id", user.DiscordId ?? ""),
-            new Claim(ClaimTypes.Role, user.Role ?? "User")
+            new Claim(ClaimTypes.Role, user.Role ?? "User"),
+            new Claim("created_at", user.CreatedAt.ToString())
         };
 
         var token = new JwtSecurityToken(

@@ -155,6 +155,7 @@ public class PostService
             CreatedAt = post.CreatedAt,
             UpdatedAt = post.UpdatedAt,
             AuthorId = post.AuthorId,
+            AuthorAvatar = post.Author?.Avatar,
             AuthorName = post.Author?.Name ?? string.Empty,
             CategoryId = post.CategoryId,
             CategoryName = post.Category?.Name,

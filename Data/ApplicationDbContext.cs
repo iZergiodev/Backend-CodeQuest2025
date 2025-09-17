@@ -16,6 +16,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<Post> Posts { get; set; }
     public DbSet<Comment> Comments { get; set; }
     public DbSet<Like> Likes { get; set; }
+    public DbSet<UserSubcategoryFollow> UserSubcategoryFollows { get; set; }
+    public DbSet<Bookmark> Bookmarks { get; set; }
     public DbSet<StarDustPointsHistory> StarDustPointsHistory { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -62,5 +64,60 @@ public class ApplicationDbContext : DbContext
             .WithMany(c => c.Subcategories)
             .HasForeignKey(s => s.CategoryId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // Configure UserSubcategoryFollow relationships
+        modelBuilder.Entity<UserSubcategoryFollow>()
+            .HasOne(usf => usf.User)
+            .WithMany(u => u.FollowedSubcategories)
+            .HasForeignKey(usf => usf.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserSubcategoryFollow>()
+            .HasOne(usf => usf.Subcategory)
+            .WithMany()
+            .HasForeignKey(usf => usf.SubcategoryId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Configure unique constraints for follows (one follow per user per subcategory)
+        modelBuilder.Entity<UserSubcategoryFollow>()
+            .HasIndex(usf => new { usf.UserId, usf.SubcategoryId })
+            .IsUnique();
+
+        // Configure Bookmark relationships
+        modelBuilder.Entity<Bookmark>()
+            .HasOne(b => b.User)
+            .WithMany(u => u.Bookmarks)
+            .HasForeignKey(b => b.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Bookmark>()
+            .HasOne(b => b.Post)
+            .WithMany(p => p.Bookmarks)
+            .HasForeignKey(b => b.PostId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Configure unique constraint for Bookmarks (one bookmark per user per post)
+        modelBuilder.Entity<Bookmark>()
+            .HasIndex(b => new { b.UserId, b.PostId })
+            .IsUnique();
+
+        // Configure StarDustPointsHistory relationships
+        modelBuilder.Entity<StarDustPointsHistory>()
+            .HasOne(sdph => sdph.User)
+            .WithMany()
+            .HasForeignKey(sdph => sdph.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<StarDustPointsHistory>()
+            .HasOne(sdph => sdph.RelatedPost)
+            .WithMany()
+            .HasForeignKey(sdph => sdph.RelatedPostId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<StarDustPointsHistory>()
+            .HasOne(sdph => sdph.RelatedComment)
+            .WithMany()
+            .HasForeignKey(sdph => sdph.RelatedCommentId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

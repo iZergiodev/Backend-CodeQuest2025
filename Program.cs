@@ -6,6 +6,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using CodeQuestBackend.Services;
 using CodeQuestBackend.Data;
+using CodeQuestBackend;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +21,9 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ISubcategoryRepository, SubcategoryRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+builder.Services.AddScoped<IUserFollowRepository, UserFollowRepository>();
+builder.Services.AddScoped<IBookmarkRepository, BookmarkRepository>();
 builder.Services.AddScoped<IStarDustPointsHistoryRepository, StarDustPointsHistoryRepository>();
 
 // Add services
@@ -28,6 +33,9 @@ builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<PostRankingService>();
 builder.Services.AddScoped<StarDustPointsService>();
 builder.Services.AddScoped<PostService>();
+builder.Services.AddScoped<CommentService>();
+builder.Services.AddScoped<UserFollowService>();
+builder.Services.AddScoped<BookmarkService>();
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
@@ -73,6 +81,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// Seed the database
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await SeedDatabase.SeedAsync(context);
+}
 
 // Configure the HTTP request pipeline.
 app.UseSwagger();

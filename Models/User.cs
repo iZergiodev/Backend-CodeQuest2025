@@ -26,4 +26,10 @@ public class User
     public string? DiscordAccessToken { get; set; }
     public string? DiscordRefreshToken { get; set; }
     public DateTime? DiscordTokenExpiresAt { get; set; }
+    
+    // Navigation Properties for following subcategories
+    public virtual ICollection<UserSubcategoryFollow> FollowedSubcategories { get; set; } = new List<UserSubcategoryFollow>();
+    
+    // Navigation Properties for bookmarks
+    public virtual ICollection<Bookmark> Bookmarks { get; set; } = new List<Bookmark>();
 }
