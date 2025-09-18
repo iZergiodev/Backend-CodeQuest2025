@@ -18,6 +18,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Like> Likes { get; set; }
     public DbSet<UserSubcategoryFollow> UserSubcategoryFollows { get; set; }
     public DbSet<Bookmark> Bookmarks { get; set; }
+    public DbSet<EngagementEvent> EngagementEvents { get; set; }
     public DbSet<StarDustPointsHistory> StarDustPointsHistory { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -99,6 +100,24 @@ public class ApplicationDbContext : DbContext
         // Configure unique constraint for Bookmarks (one bookmark per user per post)
         modelBuilder.Entity<Bookmark>()
             .HasIndex(b => new { b.UserId, b.PostId })
+            .IsUnique();
+
+        // Configure EngagementEvent relationships
+        modelBuilder.Entity<EngagementEvent>()
+            .HasOne(ee => ee.Post)
+            .WithMany()
+            .HasForeignKey(ee => ee.PostId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<EngagementEvent>()
+            .HasOne(ee => ee.User)
+            .WithMany()
+            .HasForeignKey(ee => ee.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Configure unique constraint for EngagementEvents (one event per user per post per type)
+        modelBuilder.Entity<EngagementEvent>()
+            .HasIndex(ee => new { ee.UserId, ee.PostId, ee.Type })
             .IsUnique();
 
         // Configure StarDustPointsHistory relationships

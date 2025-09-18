@@ -51,4 +51,12 @@ public class Post
     public int LikesCount { get; set; } = 0;
     public int CommentsCount { get; set; } = 0;
     public int VisitsCount { get; set; } = 0;
+    
+    // Engagement Metrics for Popularity and Trending
+    public double PopularityScore { get; set; } = 0;
+    public double TrendingScore { get; set; } = 0;
+    public DateTime LastActivityAt { get; set; } = DateTime.UtcNow;
+    public int RecentLikesCount { get; set; } = 0; // Last 24 hours
+    public int RecentCommentsCount { get; set; } = 0; // Last 24 hours
+    public int RecentVisitsCount { get; set; } = 0; // Last 24 hours
 }

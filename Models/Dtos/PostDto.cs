@@ -24,4 +24,12 @@ public class PostDto
     public int LikesCount { get; set; }
     public int CommentsCount { get; set; }
     public int VisitsCount { get; set; }
+    
+    // Engagement Metrics
+    public double PopularityScore { get; set; }
+    public double TrendingScore { get; set; }
+    public DateTime LastActivityAt { get; set; }
+    public int RecentLikesCount { get; set; }
+    public int RecentCommentsCount { get; set; }
+    public int RecentVisitsCount { get; set; }
 }

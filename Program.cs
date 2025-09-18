@@ -36,6 +36,11 @@ builder.Services.AddScoped<PostService>();
 builder.Services.AddScoped<CommentService>();
 builder.Services.AddScoped<UserFollowService>();
 builder.Services.AddScoped<BookmarkService>();
+builder.Services.AddScoped<TrendingService>();
+builder.Services.AddScoped<PopularityService>();
+
+// Add background services
+builder.Services.AddHostedService<RankingBackgroundService>();
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
