@@ -171,7 +171,11 @@ public class NotificationsController : ControllerBase
         finally
         {
             _streamService.RemoveConnection(userId, writer);
-            writer?.Dispose();
+
+            if (writer != null)
+            {
+                await writer.DisposeAsync();
+            }
         }
     }
 }
