@@ -170,7 +170,6 @@ public class DiscordAuthService
             existingUser.DiscordAvatar = discordUser.Avatar;
 
             await _userRepository.UpdateAsync(existingUser);
-            Console.WriteLine($"Updated existing user - ID: {existingUser.Id}, Username: {existingUser.Username}");
             return existingUser;
         }
 
@@ -193,9 +192,8 @@ public class DiscordAuthService
             StarDustPoints = 0
         };
 
-        var createdUser = await _userRepository.CreateAsync(newUser);
-        Console.WriteLine($"Created new user - ID: {createdUser.Id}, Username: {createdUser.Username}");
-        return createdUser;
+        await _userRepository.CreateAsync(newUser);
+        return newUser;
     }
 
     private string? GetDiscordAvatarUrl(string discordId, string? avatarHash)
