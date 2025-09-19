@@ -11,14 +11,16 @@ public class PostService
     private readonly IUserRepository _userRepository;
     private readonly PostRankingService _rankingService;
     private readonly StarDustPointsService _starDustPointsService;
+    private readonly NotificationService _notificationService;
 
-    public PostService(IPostRepository postRepository, ICategoryRepository categoryRepository, IUserRepository userRepository, PostRankingService rankingService, StarDustPointsService starDustPointsService)
+    public PostService(IPostRepository postRepository, ICategoryRepository categoryRepository, IUserRepository userRepository, PostRankingService rankingService, StarDustPointsService starDustPointsService, NotificationService notificationService)
     {
         _postRepository = postRepository;
         _categoryRepository = categoryRepository;
         _userRepository = userRepository;
         _rankingService = rankingService;
         _starDustPointsService = starDustPointsService;
+        _notificationService = notificationService;
     }
 
     public async Task<ICollection<PostDto>> GetAllPostsAsync()
@@ -65,6 +67,16 @@ public class PostService
 
         // Award points for creating a post
         await _starDustPointsService.OnPostCreatedAsync(authorId, post.Id);
+
+        // Create notifications for followers of the subcategory
+        if (post.SubcategoryId.HasValue)
+        {
+            await _notificationService.CreatePostInFollowedSubcategoryNotificationAsync(
+                authorId,
+                post.Id,
+                post.SubcategoryId.Value
+            );
+        }
 
         return MapToPostDto(post);
     }
@@ -141,6 +153,117 @@ public class PostService
 
         var rankedPosts = _rankingService.RankPosts(postDtos, authorStarDustPoints);
         return rankedPosts.ToList();
+    }
+
+    // Paginated methods
+    public async Task<PaginatedResultDto<PostDto>> GetAllPostsPaginatedAsync(int page, int pageSize)
+    {
+        var result = await _postRepository.GetAllPaginatedAsync(page, pageSize);
+
+        return new PaginatedResultDto<PostDto>
+        {
+            Data = result.Data.Select(MapToPostDto).ToList(),
+            Page = result.Page,
+            PageSize = result.PageSize,
+            TotalItems = result.TotalItems,
+            TotalPages = result.TotalPages,
+            HasNextPage = result.HasNextPage,
+            HasPreviousPage = result.HasPreviousPage
+        };
+    }
+
+    public async Task<PaginatedResultDto<PostDto>> GetPostsByAuthorIdPaginatedAsync(int authorId, int page, int pageSize)
+    {
+        var result = await _postRepository.GetByAuthorIdPaginatedAsync(authorId, page, pageSize);
+
+        return new PaginatedResultDto<PostDto>
+        {
+            Data = result.Data.Select(MapToPostDto).ToList(),
+            Page = result.Page,
+            PageSize = result.PageSize,
+            TotalItems = result.TotalItems,
+            TotalPages = result.TotalPages,
+            HasNextPage = result.HasNextPage,
+            HasPreviousPage = result.HasPreviousPage
+        };
+    }
+
+    public async Task<PaginatedResultDto<PostDto>> GetPostsByCategoryIdPaginatedAsync(int categoryId, int page, int pageSize)
+    {
+        var result = await _postRepository.GetByCategoryIdPaginatedAsync(categoryId, page, pageSize);
+
+        return new PaginatedResultDto<PostDto>
+        {
+            Data = result.Data.Select(MapToPostDto).ToList(),
+            Page = result.Page,
+            PageSize = result.PageSize,
+            TotalItems = result.TotalItems,
+            TotalPages = result.TotalPages,
+            HasNextPage = result.HasNextPage,
+            HasPreviousPage = result.HasPreviousPage
+        };
+    }
+
+    public async Task<PaginatedResultDto<PostDto>> GetPostsBySubcategoryIdPaginatedAsync(int subcategoryId, int page, int pageSize)
+    {
+        var result = await _postRepository.GetBySubcategoryIdPaginatedAsync(subcategoryId, page, pageSize);
+
+        return new PaginatedResultDto<PostDto>
+        {
+            Data = result.Data.Select(MapToPostDto).ToList(),
+            Page = result.Page,
+            PageSize = result.PageSize,
+            TotalItems = result.TotalItems,
+            TotalPages = result.TotalPages,
+            HasNextPage = result.HasNextPage,
+            HasPreviousPage = result.HasPreviousPage
+        };
+    }
+
+    public async Task<PaginatedResultDto<PostDto>> GetRankedPostsPaginatedAsync(int page, int pageSize)
+    {
+        var result = await _postRepository.GetAllPaginatedAsync(page, pageSize);
+        var postDtos = result.Data.Select(MapToPostDto).ToList();
+
+        var authorIds = postDtos.Select(p => p.AuthorId).Distinct().ToList();
+        var authors = await _userRepository.GetUsersByIdsAsync(authorIds);
+        var authorStarDustPoints = authors.ToDictionary(u => u.Id, u => u.StarDustPoints);
+
+        var rankedPosts = _rankingService.RankPosts(postDtos, authorStarDustPoints);
+
+        return new PaginatedResultDto<PostDto>
+        {
+            Data = rankedPosts.ToList(),
+            Page = result.Page,
+            PageSize = result.PageSize,
+            TotalItems = result.TotalItems,
+            TotalPages = result.TotalPages,
+            HasNextPage = result.HasNextPage,
+            HasPreviousPage = result.HasPreviousPage
+        };
+    }
+
+    public async Task<PaginatedResultDto<PostDto>> GetRankedPostsByCategoryPaginatedAsync(int categoryId, int page, int pageSize)
+    {
+        var result = await _postRepository.GetByCategoryIdPaginatedAsync(categoryId, page, pageSize);
+        var postDtos = result.Data.Select(MapToPostDto).ToList();
+
+        var authorIds = postDtos.Select(p => p.AuthorId).Distinct().ToList();
+        var authors = await _userRepository.GetUsersByIdsAsync(authorIds);
+        var authorStarDustPoints = authors.ToDictionary(u => u.Id, u => u.StarDustPoints);
+
+        var rankedPosts = _rankingService.RankPosts(postDtos, authorStarDustPoints);
+
+        return new PaginatedResultDto<PostDto>
+        {
+            Data = rankedPosts.ToList(),
+            Page = result.Page,
+            PageSize = result.PageSize,
+            TotalItems = result.TotalItems,
+            TotalPages = result.TotalPages,
+            HasNextPage = result.HasNextPage,
+            HasPreviousPage = result.HasPreviousPage
+        };
     }
 
     private static PostDto MapToPostDto(Post post)

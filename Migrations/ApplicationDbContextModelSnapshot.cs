@@ -171,6 +171,60 @@ namespace CodeQuestBackend.Migrations
                     b.ToTable("Likes");
                 });
 
+            modelBuilder.Entity("CodeQuestBackend.Models.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int?>("RelatedCommentId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("RelatedPostId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("RelatedUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RelatedCommentId");
+
+                    b.HasIndex("RelatedPostId");
+
+                    b.HasIndex("RelatedUserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Notifications");
+                });
+
             modelBuilder.Entity("CodeQuestBackend.Models.Post", b =>
                 {
                     b.Property<int>("Id")
@@ -496,6 +550,38 @@ namespace CodeQuestBackend.Migrations
                         .IsRequired();
 
                     b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("CodeQuestBackend.Models.Notification", b =>
+                {
+                    b.HasOne("CodeQuestBackend.Models.Comment", "RelatedComment")
+                        .WithMany()
+                        .HasForeignKey("RelatedCommentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("CodeQuestBackend.Models.Post", "RelatedPost")
+                        .WithMany()
+                        .HasForeignKey("RelatedPostId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("CodeQuestBackend.Models.User", "RelatedUser")
+                        .WithMany()
+                        .HasForeignKey("RelatedUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("CodeQuestBackend.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("RelatedComment");
+
+                    b.Navigation("RelatedPost");
+
+                    b.Navigation("RelatedUser");
 
                     b.Navigation("User");
                 });
