@@ -211,6 +211,61 @@ public class AuthController : ControllerBase
         }
     }
 
+    [HttpPost("refresh")]
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
+    {
+        try
+        {
+            Console.WriteLine($"Token refresh request received. Token present: {!string.IsNullOrEmpty(request.Token)}");
+            
+            // Validate the JWT token first and get the user from the token claims
+            var userId = GetUserIdFromToken(request.Token);
+            Console.WriteLine($"Extracted user ID from token: {userId}");
+            
+            if (userId == null)
+            {
+                Console.WriteLine("Invalid token - no user ID found");
+                return Unauthorized(new { message = "Invalid token" });
+            }
+
+            // Get the user from the database
+            var user = _userRepository.GetUser(userId.Value);
+            Console.WriteLine($"User found in database: {user != null}");
+            
+            if (user == null)
+            {
+                Console.WriteLine("User not found in database");
+                return Unauthorized(new { message = "User not found" });
+            }
+
+            // Generate a new JWT token
+            var jwtToken = GenerateJwtToken(user);
+            Console.WriteLine("New JWT token generated successfully");
+
+            return Ok(new
+            {
+                token = jwtToken,
+                user = new
+                {
+                    id = user.Id,
+                    username = user.Username,
+                    email = user.Email,
+                    name = user.Name,
+                    avatar = user.Avatar,
+                    discordId = user.DiscordId,
+                    discordUsername = user.DiscordUsername,
+                    role = user.Role,
+                    starDustPoints = user.StarDustPoints,
+                    createdAt = user.CreatedAt
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+        }
+    }
+
     [HttpPost("discord/refresh")]
     public async Task<IActionResult> RefreshDiscordToken([FromBody] RefreshTokenRequest request)
     {
