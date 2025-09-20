@@ -99,6 +99,9 @@ namespace CodeQuestBackend.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("PostId")
                         .HasColumnType("integer");
 
@@ -108,6 +111,8 @@ namespace CodeQuestBackend.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorId");
+
+                    b.HasIndex("ParentId");
 
                     b.HasIndex("PostId");
 
@@ -505,6 +510,11 @@ namespace CodeQuestBackend.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("CodeQuestBackend.Models.Comment", "Parent")
+                        .WithMany("Replies")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("CodeQuestBackend.Models.Post", "Post")
                         .WithMany("Comments")
                         .HasForeignKey("PostId")
@@ -512,6 +522,8 @@ namespace CodeQuestBackend.Migrations
                         .IsRequired();
 
                     b.Navigation("Author");
+
+                    b.Navigation("Parent");
 
                     b.Navigation("Post");
                 });
@@ -669,6 +681,11 @@ namespace CodeQuestBackend.Migrations
                     b.Navigation("Posts");
 
                     b.Navigation("Subcategories");
+                });
+
+            modelBuilder.Entity("CodeQuestBackend.Models.Comment", b =>
+                {
+                    b.Navigation("Replies");
                 });
 
             modelBuilder.Entity("CodeQuestBackend.Models.Post", b =>

@@ -25,24 +25,44 @@ namespace CodeQuestBackend.Repository
 
         public async Task<IEnumerable<CommentDto>> GetByPostIdAsync(int postId)
         {
-            return await _context.Comments
+            var allComments = await _context.Comments
                 .Where(c => c.PostId == postId)
                 .Include(c => c.Author)
                 .Include(c => c.Post)
+                .Include(c => c.Replies)
+                .ThenInclude(r => r.Author)
                 .OrderByDescending(c => c.CreatedAt)
-                .Select(c => new CommentDto
-                {
-                    Id = c.Id,
-                    Content = c.Content,
-                    CreatedAt = c.CreatedAt,
-                    UpdatedAt = c.UpdatedAt,
-                    PostId = c.PostId,
-                    PostTitle = c.Post.Title,
-                    AuthorId = c.AuthorId,
-                    AuthorName = c.Author.Name ?? c.Author.Username ?? "Unknown",
-                    AuthorAvatar = c.Author.Avatar
-                })
                 .ToListAsync();
+
+            // Convert to DTOs with recursive replies
+            var commentDtos = allComments.Select(c => MapCommentToDto(c, allComments)).ToList();
+
+            // Return only top-level comments (ParentId is null)
+            return commentDtos.Where(c => c.ParentId == null).ToList();
+        }
+
+        private CommentDto MapCommentToDto(Comment comment, List<Comment> allComments)
+        {
+            var replies = allComments
+                .Where(c => c.ParentId == comment.Id)
+                .OrderBy(c => c.CreatedAt)
+                .Select(c => MapCommentToDto(c, allComments))
+                .ToList();
+
+            return new CommentDto
+            {
+                Id = comment.Id,
+                Content = comment.Content,
+                CreatedAt = comment.CreatedAt,
+                UpdatedAt = comment.UpdatedAt,
+                PostId = comment.PostId,
+                PostTitle = comment.Post.Title,
+                AuthorId = comment.AuthorId,
+                AuthorName = comment.Author.Name ?? comment.Author.Username ?? "Unknown",
+                AuthorAvatar = comment.Author.Avatar,
+                ParentId = comment.ParentId,
+                Replies = replies
+            };
         }
 
         public async Task<IEnumerable<CommentDto>> GetByAuthorIdAsync(int authorId)
@@ -74,6 +94,7 @@ namespace CodeQuestBackend.Repository
                 Content = createCommentDto.Content,
                 PostId = createCommentDto.PostId,
                 AuthorId = authorId,
+                ParentId = createCommentDto.ParentId,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -81,12 +102,15 @@ namespace CodeQuestBackend.Repository
             _context.Comments.Add(comment);
             await _context.SaveChangesAsync();
 
-            // Update post comments count
-            var post = await _context.Posts.FindAsync(createCommentDto.PostId);
-            if (post != null)
+            // Update post comments count (only for top-level comments)
+            if (createCommentDto.ParentId == null)
             {
-                post.CommentsCount++;
-                await _context.SaveChangesAsync();
+                var post = await _context.Posts.FindAsync(createCommentDto.PostId);
+                if (post != null)
+                {
+                    post.CommentsCount++;
+                    await _context.SaveChangesAsync();
+                }
             }
 
             return comment;

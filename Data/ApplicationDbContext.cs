@@ -54,6 +54,13 @@ public class ApplicationDbContext : DbContext
             .HasForeignKey(c => c.AuthorId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // Configure self-referencing relationship for comment replies
+        modelBuilder.Entity<Comment>()
+            .HasOne(c => c.Parent)
+            .WithMany(c => c.Replies)
+            .HasForeignKey(c => c.ParentId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         modelBuilder.Entity<Like>()
             .HasOne(l => l.User)
             .WithMany()

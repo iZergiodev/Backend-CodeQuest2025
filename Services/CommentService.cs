@@ -32,7 +32,9 @@ namespace CodeQuestBackend.Services
                 PostTitle = comment.Post.Title,
                 AuthorId = comment.AuthorId,
                 AuthorName = comment.Author.Name ?? comment.Author.Username ?? "Unknown",
-                AuthorAvatar = comment.Author.Avatar
+                AuthorAvatar = comment.Author.Avatar,
+                ParentId = comment.ParentId,
+                Replies = new List<CommentDto>() // For individual comment retrieval, we don't load replies
             };
         }
 
