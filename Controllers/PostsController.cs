@@ -201,4 +201,107 @@ public class PostsController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, $"Error al obtener los posts rankeados por categoría: {ex.Message}");
         }
     }
+
+    // Paginated endpoints
+    [HttpGet("paginated")]
+    public async Task<IActionResult> GetAllPostsPaginated([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    {
+        try
+        {
+            if (page < 1) page = 1;
+            if (pageSize < 1 || pageSize > 50) pageSize = 10;
+
+            var posts = await _postService.GetAllPostsPaginatedAsync(page, pageSize);
+            return Ok(posts);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Error al obtener los posts paginados: {ex.Message}");
+        }
+    }
+
+    [HttpGet("author/{authorId:int}/paginated")]
+    public async Task<IActionResult> GetPostsByAuthorPaginated(int authorId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    {
+        try
+        {
+            if (page < 1) page = 1;
+            if (pageSize < 1 || pageSize > 50) pageSize = 10;
+
+            var posts = await _postService.GetPostsByAuthorIdPaginatedAsync(authorId, page, pageSize);
+            return Ok(posts);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Error al obtener los posts del autor paginados: {ex.Message}");
+        }
+    }
+
+    [HttpGet("category/{categoryId:int}/paginated")]
+    public async Task<IActionResult> GetPostsByCategoryPaginated(int categoryId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    {
+        try
+        {
+            if (page < 1) page = 1;
+            if (pageSize < 1 || pageSize > 50) pageSize = 10;
+
+            var posts = await _postService.GetPostsByCategoryIdPaginatedAsync(categoryId, page, pageSize);
+            return Ok(posts);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Error al obtener los posts de la categoría paginados: {ex.Message}");
+        }
+    }
+
+    [HttpGet("subcategory/{subcategoryId:int}/paginated")]
+    public async Task<IActionResult> GetPostsBySubcategoryPaginated(int subcategoryId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    {
+        try
+        {
+            if (page < 1) page = 1;
+            if (pageSize < 1 || pageSize > 50) pageSize = 10;
+
+            var posts = await _postService.GetPostsBySubcategoryIdPaginatedAsync(subcategoryId, page, pageSize);
+            return Ok(posts);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Error al obtener los posts de la subcategoría paginados: {ex.Message}");
+        }
+    }
+
+    [HttpGet("ranked/paginated")]
+    public async Task<IActionResult> GetRankedPostsPaginated([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    {
+        try
+        {
+            if (page < 1) page = 1;
+            if (pageSize < 1 || pageSize > 50) pageSize = 10;
+
+            var posts = await _postService.GetRankedPostsPaginatedAsync(page, pageSize);
+            return Ok(posts);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Error al obtener los posts rankeados paginados: {ex.Message}");
+        }
+    }
+
+    [HttpGet("ranked/category/{categoryId:int}/paginated")]
+    public async Task<IActionResult> GetRankedPostsByCategoryPaginated(int categoryId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    {
+        try
+        {
+            if (page < 1) page = 1;
+            if (pageSize < 1 || pageSize > 50) pageSize = 10;
+
+            var posts = await _postService.GetRankedPostsByCategoryPaginatedAsync(categoryId, page, pageSize);
+            return Ok(posts);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Error al obtener los posts rankeados por categoría paginados: {ex.Message}");
+        }
+    }
 }

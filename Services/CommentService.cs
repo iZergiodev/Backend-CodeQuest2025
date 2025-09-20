@@ -6,10 +6,14 @@ namespace CodeQuestBackend.Services
     public class CommentService
     {
         private readonly ICommentRepository _commentRepository;
+        private readonly IPostRepository _postRepository;
+        private readonly NotificationService _notificationService;
 
-        public CommentService(ICommentRepository commentRepository)
+        public CommentService(ICommentRepository commentRepository, IPostRepository postRepository, NotificationService notificationService)
         {
             _commentRepository = commentRepository;
+            _postRepository = postRepository;
+            _notificationService = notificationService;
         }
 
         public async Task<CommentDto?> GetCommentByIdAsync(int id)
@@ -45,7 +49,20 @@ namespace CodeQuestBackend.Services
         public async Task<CommentDto> CreateCommentAsync(CreateCommentDto createCommentDto, int authorId)
         {
             var comment = await _commentRepository.CreateAsync(createCommentDto, authorId);
-            
+
+            // Get post information for notification
+            var post = await _postRepository.GetByIdAsync(createCommentDto.PostId);
+            if (post != null && post.AuthorId != authorId)
+            {
+                // Create notification for post author
+                await _notificationService.CreateCommentNotificationAsync(
+                    post.AuthorId,
+                    authorId,
+                    post.Id,
+                    comment.Id
+                );
+            }
+
             return new CommentDto
             {
                 Id = comment.Id,

@@ -14,4 +14,5 @@ public interface IUserFollowRepository
     Task<List<SubcategoryWithFollowerCountDto>> GetSubcategoriesWithFollowerCountAsync(int? userId = null);
     Task<SubcategoryWithFollowerCountDto> GetSubcategoryWithFollowerCountAsync(int subcategoryId, int? userId = null);
     Task<int> GetSubcategoryFollowerCountAsync(int subcategoryId);
+    Task<ICollection<UserSubcategoryFollow>> GetFollowersBySubcategoryIdAsync(int subcategoryId);
 }

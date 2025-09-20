@@ -9,6 +9,7 @@ using CodeQuestBackend.Models.Dtos;
 using CodeQuestBackend.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 using CodeQuestBackend.Data;
+using Microsoft.Extensions.Configuration;
 
 namespace CodeQuestBackend.Repository;
 
@@ -16,12 +17,14 @@ public class UserRepository : IUserRepository
 {
 
     private readonly ApplicationDbContext _db;
+    private readonly IConfiguration _configuration;
     private string? secretKey;
 
     public UserRepository(ApplicationDbContext db, IConfiguration configuration)
     {
         _db = db;
-        secretKey = configuration.GetValue<string>("ApiSettings:SecretKey");
+        _configuration = configuration;
+        secretKey = configuration.GetValue<string>("Jwt:Key");
     }
 
     public User? GetUser(int id)
@@ -101,16 +104,21 @@ public class UserRepository : IUserRepository
             throw new InvalidOperationException("SecreyKey no está configurada");
         }
         var key = Encoding.UTF8.GetBytes(secretKey);
+        var jwtSettings = _configuration.GetSection("Jwt");
         var tokenDescriptor = new SecurityTokenDescriptor()
         {
             Subject = new ClaimsIdentity(new[]
             {
-                new Claim("id",user.Id.ToString()),
-                new Claim("email",user.Email),
-                new Claim(ClaimTypes.Role,user.Role ?? string.Empty),
-
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Name ?? user.Username ?? ""),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim("discord_id", user.DiscordId ?? ""),
+                new Claim(ClaimTypes.Role, user.Role ?? "User"),
+                new Claim("created_at", user.CreatedAt.ToString())
             }),
-            Expires = DateTime.UtcNow.AddHours(2),
+            Issuer = jwtSettings["Issuer"],
+            Audience = jwtSettings["Audience"],
+            Expires = DateTime.UtcNow.AddDays(7),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
 
@@ -120,10 +128,16 @@ public class UserRepository : IUserRepository
             Token = handlerToken.WriteToken(token),
             User = new UserRegisterDto()
             {
+                ID = user.Id.ToString(),
                 Email = user.Email,
                 Username = user.Username ?? $"Tripulante-{Random.Shared.Next(100000, 999999)}",
                 Role = user.Role,
-                Password = user.Password ?? ""
+                Password = user.Password ?? "",
+                Avatar = user.Avatar,
+                Biography = user.Biography,
+                BirthDate = user.BirthDate,
+                CreatedAt = user.CreatedAt,
+                StarDustPoints = user.StarDustPoints
             },
             Message = "Usuario logueado correctamente"
         };
@@ -135,9 +149,13 @@ public class UserRepository : IUserRepository
         var user = new User()
         {
             Username = createUserDto.Username,
+            Name = createUserDto.Username, // Set name to username for email users
             Email = createUserDto.Email ?? "Email undefined",
             Role = createUserDto.Role,
-            Password = encryptedPassword
+            Password = encryptedPassword,
+            CreatedAt = DateTime.UtcNow,
+            BirthDate = DateTime.UtcNow.AddYears(-18), // Default to 18 years old
+            StarDustPoints = 0
         };
 
         _db.Users.Add(user);

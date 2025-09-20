@@ -46,7 +46,7 @@ namespace CodeQuestBackend.Migrations
                     b.HasIndex("UserId", "PostId")
                         .IsUnique();
 
-                    b.ToTable("Bookmarks", (string)null);
+                    b.ToTable("Bookmarks");
                 });
 
             modelBuilder.Entity("CodeQuestBackend.Models.Category", b =>
@@ -78,7 +78,7 @@ namespace CodeQuestBackend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("CodeQuestBackend.Models.Comment", b =>
@@ -111,7 +111,37 @@ namespace CodeQuestBackend.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("Comments", (string)null);
+                    b.ToTable("Comments");
+                });
+
+            modelBuilder.Entity("CodeQuestBackend.Models.EngagementEvent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId", "PostId", "Type")
+                        .IsUnique();
+
+                    b.ToTable("EngagementEvents");
                 });
 
             modelBuilder.Entity("CodeQuestBackend.Models.Like", b =>
@@ -138,7 +168,61 @@ namespace CodeQuestBackend.Migrations
                     b.HasIndex("UserId", "PostId")
                         .IsUnique();
 
-                    b.ToTable("Likes", (string)null);
+                    b.ToTable("Likes");
+                });
+
+            modelBuilder.Entity("CodeQuestBackend.Models.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int?>("RelatedCommentId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("RelatedPostId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("RelatedUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RelatedCommentId");
+
+                    b.HasIndex("RelatedPostId");
+
+                    b.HasIndex("RelatedUserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("CodeQuestBackend.Models.Post", b =>
@@ -168,7 +252,22 @@ namespace CodeQuestBackend.Migrations
                     b.Property<string>("ImageUrl")
                         .HasColumnType("text");
 
+                    b.Property<DateTime>("LastActivityAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("LikesCount")
+                        .HasColumnType("integer");
+
+                    b.Property<double>("PopularityScore")
+                        .HasColumnType("double precision");
+
+                    b.Property<int>("RecentCommentsCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RecentLikesCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RecentVisitsCount")
                         .HasColumnType("integer");
 
                     b.Property<int?>("SubcategoryId")
@@ -187,6 +286,9 @@ namespace CodeQuestBackend.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<double>("TrendingScore")
+                        .HasColumnType("double precision");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -201,7 +303,7 @@ namespace CodeQuestBackend.Migrations
 
                     b.HasIndex("SubcategoryId");
 
-                    b.ToTable("Posts", (string)null);
+                    b.ToTable("Posts");
                 });
 
             modelBuilder.Entity("CodeQuestBackend.Models.StarDustPointsHistory", b =>
@@ -244,7 +346,7 @@ namespace CodeQuestBackend.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("StarDustPointsHistory", (string)null);
+                    b.ToTable("StarDustPointsHistory");
                 });
 
             modelBuilder.Entity("CodeQuestBackend.Models.Subcategory", b =>
@@ -281,7 +383,7 @@ namespace CodeQuestBackend.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Subcategories", (string)null);
+                    b.ToTable("Subcategories");
                 });
 
             modelBuilder.Entity("CodeQuestBackend.Models.User", b =>
@@ -346,7 +448,7 @@ namespace CodeQuestBackend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("CodeQuestBackend.Models.UserSubcategoryFollow", b =>
@@ -373,7 +475,7 @@ namespace CodeQuestBackend.Migrations
                     b.HasIndex("UserId", "SubcategoryId")
                         .IsUnique();
 
-                    b.ToTable("UserSubcategoryFollows", (string)null);
+                    b.ToTable("UserSubcategoryFollows");
                 });
 
             modelBuilder.Entity("CodeQuestBackend.Models.Bookmark", b =>
@@ -414,6 +516,25 @@ namespace CodeQuestBackend.Migrations
                     b.Navigation("Post");
                 });
 
+            modelBuilder.Entity("CodeQuestBackend.Models.EngagementEvent", b =>
+                {
+                    b.HasOne("CodeQuestBackend.Models.Post", "Post")
+                        .WithMany()
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CodeQuestBackend.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("CodeQuestBackend.Models.Like", b =>
                 {
                     b.HasOne("CodeQuestBackend.Models.Post", "Post")
@@ -429,6 +550,38 @@ namespace CodeQuestBackend.Migrations
                         .IsRequired();
 
                     b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("CodeQuestBackend.Models.Notification", b =>
+                {
+                    b.HasOne("CodeQuestBackend.Models.Comment", "RelatedComment")
+                        .WithMany()
+                        .HasForeignKey("RelatedCommentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("CodeQuestBackend.Models.Post", "RelatedPost")
+                        .WithMany()
+                        .HasForeignKey("RelatedPostId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("CodeQuestBackend.Models.User", "RelatedUser")
+                        .WithMany()
+                        .HasForeignKey("RelatedUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("CodeQuestBackend.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("RelatedComment");
+
+                    b.Navigation("RelatedPost");
+
+                    b.Navigation("RelatedUser");
 
                     b.Navigation("User");
                 });
@@ -460,11 +613,13 @@ namespace CodeQuestBackend.Migrations
                 {
                     b.HasOne("CodeQuestBackend.Models.Comment", "RelatedComment")
                         .WithMany()
-                        .HasForeignKey("RelatedCommentId");
+                        .HasForeignKey("RelatedCommentId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("CodeQuestBackend.Models.Post", "RelatedPost")
                         .WithMany()
-                        .HasForeignKey("RelatedPostId");
+                        .HasForeignKey("RelatedPostId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("CodeQuestBackend.Models.User", "User")
                         .WithMany()

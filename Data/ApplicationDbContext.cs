@@ -18,7 +18,9 @@ public class ApplicationDbContext : DbContext
     public DbSet<Like> Likes { get; set; }
     public DbSet<UserSubcategoryFollow> UserSubcategoryFollows { get; set; }
     public DbSet<Bookmark> Bookmarks { get; set; }
+    public DbSet<EngagementEvent> EngagementEvents { get; set; }
     public DbSet<StarDustPointsHistory> StarDustPointsHistory { get; set; }
+    public DbSet<Notification> Notifications { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -101,6 +103,24 @@ public class ApplicationDbContext : DbContext
             .HasIndex(b => new { b.UserId, b.PostId })
             .IsUnique();
 
+        // Configure EngagementEvent relationships
+        modelBuilder.Entity<EngagementEvent>()
+            .HasOne(ee => ee.Post)
+            .WithMany()
+            .HasForeignKey(ee => ee.PostId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<EngagementEvent>()
+            .HasOne(ee => ee.User)
+            .WithMany()
+            .HasForeignKey(ee => ee.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Configure unique constraint for EngagementEvents (one event per user per post per type)
+        modelBuilder.Entity<EngagementEvent>()
+            .HasIndex(ee => new { ee.UserId, ee.PostId, ee.Type })
+            .IsUnique();
+
         // Configure StarDustPointsHistory relationships
         modelBuilder.Entity<StarDustPointsHistory>()
             .HasOne(sdph => sdph.User)
@@ -119,5 +139,30 @@ public class ApplicationDbContext : DbContext
             .WithMany()
             .HasForeignKey(sdph => sdph.RelatedCommentId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        // Configure Notification relationships
+        modelBuilder.Entity<Notification>()
+            .HasOne(n => n.User)
+            .WithMany()
+            .HasForeignKey(n => n.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Notification>()
+            .HasOne(n => n.RelatedPost)
+            .WithMany()
+            .HasForeignKey(n => n.RelatedPostId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Notification>()
+            .HasOne(n => n.RelatedComment)
+            .WithMany()
+            .HasForeignKey(n => n.RelatedCommentId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Notification>()
+            .HasOne(n => n.RelatedUser)
+            .WithMany()
+            .HasForeignKey(n => n.RelatedUserId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

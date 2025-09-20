@@ -154,4 +154,119 @@ public class PostRepository : IPostRepository
     {
         return await _context.Posts.CountAsync(p => p.CategoryId == categoryId);
     }
+
+    public async Task<PaginatedResultDto<Post>> GetAllPaginatedAsync(int page, int pageSize)
+    {
+        var query = _context.Posts
+            .Include(p => p.Author)
+            .Include(p => p.Category)
+            .Include(p => p.Subcategory)
+            .OrderByDescending(p => p.CreatedAt);
+
+        var totalItems = await query.CountAsync();
+        var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+        var posts = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PaginatedResultDto<Post>
+        {
+            Data = posts,
+            Page = page,
+            PageSize = pageSize,
+            TotalItems = totalItems,
+            TotalPages = totalPages,
+            HasNextPage = page < totalPages,
+            HasPreviousPage = page > 1
+        };
+    }
+
+    public async Task<PaginatedResultDto<Post>> GetByAuthorIdPaginatedAsync(int authorId, int page, int pageSize)
+    {
+        var query = _context.Posts
+            .Where(p => p.AuthorId == authorId)
+            .Include(p => p.Author)
+            .Include(p => p.Category)
+            .Include(p => p.Subcategory)
+            .OrderByDescending(p => p.CreatedAt);
+
+        var totalItems = await query.CountAsync();
+        var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+        var posts = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PaginatedResultDto<Post>
+        {
+            Data = posts,
+            Page = page,
+            PageSize = pageSize,
+            TotalItems = totalItems,
+            TotalPages = totalPages,
+            HasNextPage = page < totalPages,
+            HasPreviousPage = page > 1
+        };
+    }
+
+    public async Task<PaginatedResultDto<Post>> GetByCategoryIdPaginatedAsync(int categoryId, int page, int pageSize)
+    {
+        var query = _context.Posts
+            .Where(p => p.CategoryId == categoryId)
+            .Include(p => p.Author)
+            .Include(p => p.Category)
+            .Include(p => p.Subcategory)
+            .OrderByDescending(p => p.CreatedAt);
+
+        var totalItems = await query.CountAsync();
+        var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+        var posts = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PaginatedResultDto<Post>
+        {
+            Data = posts,
+            Page = page,
+            PageSize = pageSize,
+            TotalItems = totalItems,
+            TotalPages = totalPages,
+            HasNextPage = page < totalPages,
+            HasPreviousPage = page > 1
+        };
+    }
+
+    public async Task<PaginatedResultDto<Post>> GetBySubcategoryIdPaginatedAsync(int subcategoryId, int page, int pageSize)
+    {
+        var query = _context.Posts
+            .Where(p => p.SubcategoryId == subcategoryId)
+            .Include(p => p.Author)
+            .Include(p => p.Category)
+            .Include(p => p.Subcategory)
+            .OrderByDescending(p => p.CreatedAt);
+
+        var totalItems = await query.CountAsync();
+        var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+        var posts = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PaginatedResultDto<Post>
+        {
+            Data = posts,
+            Page = page,
+            PageSize = pageSize,
+            TotalItems = totalItems,
+            TotalPages = totalPages,
+            HasNextPage = page < totalPages,
+            HasPreviousPage = page > 1
+        };
+    }
 }
