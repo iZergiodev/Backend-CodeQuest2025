@@ -21,10 +21,17 @@ public class Comment
     [Required]
     public int AuthorId { get; set; }
 
+    public int? ParentId { get; set; }
+
     // Navigation Properties
     [ForeignKey("PostId")]
     public virtual Post Post { get; set; } = null!;
 
     [ForeignKey("AuthorId")]
     public virtual User Author { get; set; } = null!;
+
+    [ForeignKey("ParentId")]
+    public virtual Comment? Parent { get; set; }
+
+    public virtual ICollection<Comment> Replies { get; set; } = new List<Comment>();
 }

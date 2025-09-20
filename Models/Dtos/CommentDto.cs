@@ -13,12 +13,15 @@ namespace CodeQuestBackend.Models.Dtos
         public int AuthorId { get; set; }
         public string AuthorName { get; set; } = string.Empty;
         public string? AuthorAvatar { get; set; }
+        public int? ParentId { get; set; }
+        public List<CommentDto> Replies { get; set; } = new List<CommentDto>();
     }
 
     public class CreateCommentDto
     {
         public string Content { get; set; } = string.Empty;
         public int PostId { get; set; }
+        public int? ParentId { get; set; }
     }
 
     public class UpdateCommentDto
