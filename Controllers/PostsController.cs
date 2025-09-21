@@ -1,19 +1,23 @@
 using CodeQuestBackend.Models.Dtos;
 using CodeQuestBackend.Services;
+using CodeQuestBackend.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace CodeQuestBackend.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
 public class PostsController : ControllerBase
-{
-    private readonly PostService _postService;
-
-    public PostsController(PostService postService)
     {
-        _postService = postService;
-    }
+        private readonly PostService _postService;
+        private readonly TrendingService _trendingService;
+
+        public PostsController(PostService postService, TrendingService trendingService)
+        {
+            _postService = postService;
+            _trendingService = trendingService;
+        }
 
     [HttpGet]
     public async Task<IActionResult> GetAllPosts()
@@ -34,11 +38,19 @@ public class PostsController : ControllerBase
     {
         try
         {
-            var post = await _postService.GetPostByIdAsync(id);
+            var currentUserId = GetCurrentUserId();
+            var post = await _postService.GetPostByIdAsync(id, currentUserId);
             if (post == null)
             {
                 return NotFound($"El post con ID {id} no existe");
             }
+
+            // Record view engagement for trending (only if user is authenticated)
+            if (currentUserId.HasValue)
+            {
+                await _trendingService.RecordEngagementAsync(id, currentUserId.Value, EngagementType.View);
+            }
+
             return Ok(post);
         }
         catch (Exception ex)
@@ -303,5 +315,46 @@ public class PostsController : ControllerBase
         {
             return StatusCode(StatusCodes.Status500InternalServerError, $"Error al obtener los posts rankeados por categoría paginados: {ex.Message}");
         }
+    }
+
+    [HttpGet("followed/paginated")]
+    public async Task<IActionResult> GetPostsByFollowedSubcategoriesPaginated(
+        [FromQuery] string subcategoryIds, 
+        [FromQuery] int page = 1, 
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string sortBy = "recent")
+    {
+        try
+        {
+            if (page < 1) page = 1;
+            if (pageSize < 1 || pageSize > 50) pageSize = 10;
+
+            // Parse comma-separated subcategory IDs
+            var subcategoryIdList = new List<int>();
+            if (!string.IsNullOrEmpty(subcategoryIds))
+            {
+                subcategoryIdList = subcategoryIds.Split(',')
+                    .Where(id => int.TryParse(id.Trim(), out _))
+                    .Select(id => int.Parse(id.Trim()))
+                    .ToList();
+            }
+
+            var posts = await _postService.GetPostsByFollowedSubcategoriesAsync(subcategoryIdList, page, pageSize, sortBy);
+            return Ok(posts);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Error al obtener los posts de subcategorías seguidas: {ex.Message}");
+        }
+    }
+
+    private int? GetCurrentUserId()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim != null && int.TryParse(userIdClaim, out int userId))
+        {
+            return userId;
+        }
+        return null;
     }
 }

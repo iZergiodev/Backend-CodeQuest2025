@@ -16,6 +16,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Post> Posts { get; set; }
     public DbSet<Comment> Comments { get; set; }
     public DbSet<Like> Likes { get; set; }
+    public DbSet<CommentLike> CommentLikes { get; set; }
     public DbSet<UserSubcategoryFollow> UserSubcategoryFollows { get; set; }
     public DbSet<Bookmark> Bookmarks { get; set; }
     public DbSet<EngagementEvent> EngagementEvents { get; set; }
@@ -66,6 +67,24 @@ public class ApplicationDbContext : DbContext
             .WithMany()
             .HasForeignKey(l => l.UserId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // Configure CommentLike relationships
+        modelBuilder.Entity<CommentLike>()
+            .HasOne(cl => cl.Comment)
+            .WithMany(c => c.Likes)
+            .HasForeignKey(cl => cl.CommentId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CommentLike>()
+            .HasOne(cl => cl.User)
+            .WithMany()
+            .HasForeignKey(cl => cl.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Configure unique constraint for CommentLikes (one like per user per comment)
+        modelBuilder.Entity<CommentLike>()
+            .HasIndex(cl => new { cl.UserId, cl.CommentId })
+            .IsUnique();
 
         // Configure Subcategory relationships
         modelBuilder.Entity<Subcategory>()

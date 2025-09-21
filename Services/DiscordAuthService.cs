@@ -161,7 +161,7 @@ public class DiscordAuthService
 
         if (existingUser != null)
         {
-            // Update existing user with new token info
+            // Update only Discord-related fields to preserve existing profile data
             existingUser.DiscordAccessToken = tokenResponse.AccessToken;
             existingUser.DiscordRefreshToken = tokenResponse.RefreshToken;
             existingUser.DiscordTokenExpiresAt = DateTime.UtcNow.AddSeconds(tokenResponse.ExpiresIn);
@@ -169,8 +169,9 @@ public class DiscordAuthService
             existingUser.DiscordDiscriminator = discordUser.Discriminator;
             existingUser.DiscordAvatar = discordUser.Avatar;
 
-            await _userRepository.UpdateAsync(existingUser);
-            return existingUser;
+            var updatedUser = await _userRepository.UpdateDiscordFieldsAsync(existingUser);
+            
+            return updatedUser;
         }
 
         // Create new user

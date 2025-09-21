@@ -1,5 +1,6 @@
 using CodeQuestBackend.Models.Dtos;
 using CodeQuestBackend.Services;
+using CodeQuestBackend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -11,11 +12,13 @@ namespace CodeQuestBackend.Controllers
     public class CommentsController : ControllerBase
     {
         private readonly CommentService _commentService;
+        private readonly TrendingService _trendingService;
         private readonly ILogger<CommentsController> _logger;
 
-        public CommentsController(CommentService commentService, ILogger<CommentsController> logger)
+        public CommentsController(CommentService commentService, TrendingService trendingService, ILogger<CommentsController> logger)
         {
             _commentService = commentService;
+            _trendingService = trendingService;
             _logger = logger;
         }
 
@@ -48,11 +51,12 @@ namespace CodeQuestBackend.Controllers
         }
 
         [HttpGet("post/{postId}")]
-        public async Task<IActionResult> GetCommentsByPost(int postId)
+        public async Task<IActionResult> GetCommentsByPost(int postId, [FromQuery] string sortBy = "newest")
         {
             try
             {
-                var comments = await _commentService.GetCommentsByPostIdAsync(postId);
+                var currentUserId = GetCurrentUserId();
+                var comments = await _commentService.GetCommentsByPostIdAsync(postId, currentUserId, sortBy);
                 return Ok(comments);
             }
             catch (Exception ex)
@@ -88,6 +92,10 @@ namespace CodeQuestBackend.Controllers
                     return Unauthorized();
 
                 var comment = await _commentService.CreateCommentAsync(createCommentDto, userId.Value);
+                
+                // Record engagement for trending
+                await _trendingService.RecordEngagementAsync(createCommentDto.PostId, userId.Value, EngagementType.Comment);
+                
                 return CreatedAtAction(nameof(GetComment), new { id = comment.Id }, comment);
             }
             catch (Exception ex)

@@ -11,7 +11,7 @@ public class UserRegisterDto
     public string? Role { get; set; }
     public string? Avatar { get; set; }
     public string? Biography { get; set; }
-    public DateTime BirthDate { get; set; }
+    public DateTime? BirthDate { get; set; }
     public DateTime CreatedAt { get; set; }
     public int StarDustPoints { get; set; }
 }

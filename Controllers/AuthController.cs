@@ -7,6 +7,7 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using CodeQuestBackend.Models;
 using CodeQuestBackend.Repository.IRepository;
+using System.Text.Json;
 
 namespace CodeQuestBackend.Controllers;
 
@@ -97,6 +98,27 @@ public class AuthController : ControllerBase
 
             var token = GenerateJwtToken(user);
 
+            // Create user data object with all fields
+            var userData = new
+            {
+                id = user.Id,
+                username = user.Username,
+                email = user.Email,
+                name = user.Name,
+                avatar = user.Avatar,
+                biography = user.Biography,
+                birthDate = user.BirthDate?.ToString("yyyy-MM-dd"),
+                discordId = user.DiscordId,
+                discordUsername = user.DiscordUsername,
+                discordDiscriminator = user.DiscordDiscriminator,
+                discordAvatar = user.DiscordAvatar,
+                role = user.Role,
+                starDustPoints = user.StarDustPoints,
+                createdAt = user.CreatedAt.ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+            };
+
+            var authData = new { token, user = userData };
+
             // Return HTML page that will handle the redirect to frontend
             var html = $@"
 <!DOCTYPE html>
@@ -115,28 +137,14 @@ public class AuthController : ControllerBase
         <p>You can now close this window and return to the application.</p>
         <script>
             // Send data to parent window if in iframe, otherwise store in localStorage
-            const authData = {{
-                token: '{token}',
-                user: {{
-                    id: {user.Id},
-                    username: '{user.Username}',
-                    email: '{user.Email}',
-                    name: '{user.Name}',
-                    avatar: '{user.Avatar}',
-                    discordId: '{user.DiscordId}',
-                    discordUsername: '{user.DiscordUsername}',
-                    role: '{user.Role}',
-                    starDustPoints: {user.StarDustPoints},
-                    createdAt: '{user.CreatedAt}'
-                }}
-            }};
+            const authData = {JsonSerializer.Serialize(authData)};
             
             if (window.opener) {{
                 window.opener.postMessage(authData, '*');
                 window.close();
             }} else {{
-                localStorage.setItem('token', authData.token);
-                localStorage.setItem('user', JSON.stringify(authData.user));
+                localStorage.setItem('devtalles_token', authData.token);
+                localStorage.setItem('devtalles_user', JSON.stringify(authData.user));
                 window.location.href = 'http://localhost:8080';
             }}
         </script>
@@ -197,11 +205,15 @@ public class AuthController : ControllerBase
                     email = user.Email,
                     name = user.Name,
                     avatar = user.Avatar,
+                    biography = user.Biography,
+                    birthDate = user.BirthDate?.ToString("yyyy-MM-dd"),
                     discordId = user.DiscordId,
                     discordUsername = user.DiscordUsername,
+                    discordDiscriminator = user.DiscordDiscriminator,
+                    discordAvatar = user.DiscordAvatar,
                     role = user.Role,
                     starDustPoints = user.StarDustPoints,
-                    createdAt = user.CreatedAt
+                    createdAt = user.CreatedAt.ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
                 }
             });
         }

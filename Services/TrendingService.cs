@@ -127,16 +127,28 @@ public class TrendingService
     {
         try
         {
-            // Create engagement event
-            var engagementEvent = new EngagementEvent
-            {
-                PostId = postId,
-                UserId = userId,
-                Type = type,
-                CreatedAt = DateTime.UtcNow
-            };
+            // Check if engagement already exists
+            var existingEngagement = await _context.EngagementEvents
+                .FirstOrDefaultAsync(e => e.PostId == postId && e.UserId == userId && e.Type == type);
 
-            _context.EngagementEvents.Add(engagementEvent);
+            if (existingEngagement != null)
+            {
+                // Engagement already exists, just update the timestamp
+                existingEngagement.CreatedAt = DateTime.UtcNow;
+            }
+            else
+            {
+                // Create new engagement event
+                var engagementEvent = new EngagementEvent
+                {
+                    PostId = postId,
+                    UserId = userId,
+                    Type = type,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                _context.EngagementEvents.Add(engagementEvent);
+            }
 
             // Update post metrics
             var post = await _context.Posts.FindAsync(postId);
@@ -144,7 +156,10 @@ public class TrendingService
             {
                 post.LastActivityAt = DateTime.UtcNow;
 
-                // Update recent counts (last 24 hours)
+                // Note: Count increments are handled by the respective repositories
+                // This service only handles engagement events and trending scores
+
+                // Update recent counts (last 24 hours) - always recalculate
                 var cutoffTime = DateTime.UtcNow.AddHours(-24);
                 var recentCount = await _context.EngagementEvents
                     .CountAsync(e => e.PostId == postId && e.Type == type && e.CreatedAt >= cutoffTime);
@@ -152,15 +167,12 @@ public class TrendingService
                 switch (type)
                 {
                     case EngagementType.View:
-                        post.VisitsCount++;
                         post.RecentVisitsCount = recentCount;
                         break;
                     case EngagementType.Like:
-                        post.LikesCount++;
                         post.RecentLikesCount = recentCount;
                         break;
                     case EngagementType.Comment:
-                        post.CommentsCount++;
                         post.RecentCommentsCount = recentCount;
                         break;
                 }

@@ -12,8 +12,14 @@ public class UserDto
     public string? Role { get; set; }
     public string? Avatar { get; set; }
     public string? Biography { get; set; }
-    public DateTime BirthDate { get; set; }
+    public DateTime? BirthDate { get; set; }
     public DateTime CreatedAt { get; set; }
     public int StarDustPoints { get; set; }
+    
+    // Discord authentication fields
+    public string? DiscordId { get; set; }
+    public string? DiscordUsername { get; set; }
+    public string? DiscordDiscriminator { get; set; }
+    public string? DiscordAvatar { get; set; }
 
 }

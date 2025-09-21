@@ -1,8 +1,10 @@
 using AutoMapper;
 using CodeQuestBackend.Models.Dtos;
 using CodeQuestBackend.Repository.IRepository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace CodeQuestBackend.Controllers
 {
@@ -77,6 +79,63 @@ namespace CodeQuestBackend.Controllers
             return Ok(user);
         }
 
+        [HttpPut("{id:int}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserDto updateUserDto)
+        {
+            try
+            {
+                // Get current user ID from token
+                var currentUserIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+                if (currentUserIdClaim == null || !int.TryParse(currentUserIdClaim.Value, out int currentUserId))
+                {
+                    return Unauthorized(new { message = "Invalid token claims" });
+                }
+
+                // Users can only update their own profile
+                if (currentUserId != id)
+                {
+                    return Forbid("You can only update your own profile");
+                }
+
+                if (updateUserDto == null || !ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var existingUser = _userRepository.GetUser(id);
+                if (existingUser == null)
+                {
+                    return NotFound($"User with ID {id} not found");
+                }
+
+                // Update user properties
+                if (!string.IsNullOrEmpty(updateUserDto.Name))
+                    existingUser.Name = updateUserDto.Name;
+                
+                if (!string.IsNullOrEmpty(updateUserDto.Biography))
+                    existingUser.Biography = updateUserDto.Biography;
+                
+                if (!string.IsNullOrEmpty(updateUserDto.BirthDate))
+                {
+                    if (DateTime.TryParse(updateUserDto.BirthDate, out DateTime birthDate))
+                        existingUser.BirthDate = DateTime.SpecifyKind(birthDate, DateTimeKind.Utc);
+                }
+                
+                if (!string.IsNullOrEmpty(updateUserDto.Avatar))
+                    existingUser.Avatar = updateUserDto.Avatar;
+
+                var updatedUser = await _userRepository.UpdateAsync(existingUser);
+                var userDto = _mapper.Map<UserDto>(updatedUser);
+
+                return Ok(userDto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, 
+                    new { message = "Error updating user", error = ex.Message });
+            }
+        }
 
     }
 }

@@ -26,6 +26,8 @@ builder.Services.AddScoped<IUserFollowRepository, UserFollowRepository>();
 builder.Services.AddScoped<IBookmarkRepository, BookmarkRepository>();
 builder.Services.AddScoped<IStarDustPointsHistoryRepository, StarDustPointsHistoryRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<IPostLikeRepository, PostLikeRepository>();
+builder.Services.AddScoped<ICommentLikeRepository, CommentLikeRepository>();
 
 // Add services
 builder.Services.AddHttpClient<DiscordAuthService>();
@@ -39,6 +41,8 @@ builder.Services.AddScoped<UserFollowService>();
 builder.Services.AddScoped<BookmarkService>();
 builder.Services.AddScoped<TrendingService>();
 builder.Services.AddScoped<PopularityService>();
+builder.Services.AddScoped<PostLikeService>();
+builder.Services.AddScoped<CommentLikeService>();
 
 // Add background services
 builder.Services.AddHostedService<RankingBackgroundService>();

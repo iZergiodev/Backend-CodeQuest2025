@@ -43,6 +43,16 @@ namespace CodeQuestBackend.Services
             return await _commentRepository.GetByPostIdAsync(postId);
         }
 
+        public async Task<IEnumerable<CommentDto>> GetCommentsByPostIdAsync(int postId, int? currentUserId)
+        {
+            return await _commentRepository.GetByPostIdAsync(postId, currentUserId);
+        }
+
+        public async Task<IEnumerable<CommentDto>> GetCommentsByPostIdAsync(int postId, int? currentUserId, string sortBy)
+        {
+            return await _commentRepository.GetByPostIdAsync(postId, currentUserId, sortBy);
+        }
+
         public async Task<IEnumerable<CommentDto>> GetCommentsByAuthorIdAsync(int authorId)
         {
             return await _commentRepository.GetByAuthorIdAsync(authorId);

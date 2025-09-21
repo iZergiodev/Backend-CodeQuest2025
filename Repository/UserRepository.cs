@@ -67,6 +67,25 @@ public class UserRepository : IUserRepository
         return user;
     }
 
+    public async Task<User> UpdateDiscordFieldsAsync(User user)
+    {
+        // Update only Discord-related fields to preserve existing profile data
+        var existingUser = await _db.Users.FirstOrDefaultAsync(u => u.Id == user.Id);
+        if (existingUser != null)
+        {
+            existingUser.DiscordAccessToken = user.DiscordAccessToken;
+            existingUser.DiscordRefreshToken = user.DiscordRefreshToken;
+            existingUser.DiscordTokenExpiresAt = user.DiscordTokenExpiresAt;
+            existingUser.DiscordUsername = user.DiscordUsername;
+            existingUser.DiscordDiscriminator = user.DiscordDiscriminator;
+            existingUser.DiscordAvatar = user.DiscordAvatar;
+            
+            await _db.SaveChangesAsync();
+            return existingUser;
+        }
+        return user;
+    }
+
     public async Task<UserLoginResponseDto> Login(UserLoginDto userLoginDto)
     {
         if (string.IsNullOrEmpty(userLoginDto.Email))
