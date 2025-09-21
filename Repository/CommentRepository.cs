@@ -25,12 +25,11 @@ namespace CodeQuestBackend.Repository
 
         public async Task<IEnumerable<CommentDto>> GetByPostIdAsync(int postId)
         {
+            // Load all comments for the post with their authors
             var allComments = await _context.Comments
                 .Where(c => c.PostId == postId)
                 .Include(c => c.Author)
                 .Include(c => c.Post)
-                .Include(c => c.Replies)
-                .ThenInclude(r => r.Author)
                 .OrderByDescending(c => c.CreatedAt)
                 .ToListAsync();
 
@@ -49,6 +48,13 @@ namespace CodeQuestBackend.Repository
                 .Select(c => MapCommentToDto(c, allComments))
                 .ToList();
 
+            // Ensure we have the author information
+            var authorName = comment.Author?.Name ?? comment.Author?.Username ?? "Usuario";
+            var authorAvatar = comment.Author?.Avatar;
+
+            // Calculate total replies count (including nested replies)
+            var totalRepliesCount = allComments.Count(c => c.ParentId == comment.Id);
+
             return new CommentDto
             {
                 Id = comment.Id,
@@ -56,12 +62,14 @@ namespace CodeQuestBackend.Repository
                 CreatedAt = comment.CreatedAt,
                 UpdatedAt = comment.UpdatedAt,
                 PostId = comment.PostId,
-                PostTitle = comment.Post.Title,
+                PostTitle = comment.Post?.Title ?? "Unknown Post",
                 AuthorId = comment.AuthorId,
-                AuthorName = comment.Author.Name ?? comment.Author.Username ?? "Unknown",
-                AuthorAvatar = comment.Author.Avatar,
+                AuthorName = authorName,
+                AuthorAvatar = authorAvatar,
                 ParentId = comment.ParentId,
-                Replies = replies
+                Replies = replies,
+                LikesCount = 0, // Comments don't have likes in this system
+                RepliesCount = totalRepliesCount
             };
         }
 
@@ -102,15 +110,12 @@ namespace CodeQuestBackend.Repository
             _context.Comments.Add(comment);
             await _context.SaveChangesAsync();
 
-            // Update post comments count (only for top-level comments)
-            if (createCommentDto.ParentId == null)
+            // Update post comments count (count ALL comments, including nested ones)
+            var post = await _context.Posts.FindAsync(createCommentDto.PostId);
+            if (post != null)
             {
-                var post = await _context.Posts.FindAsync(createCommentDto.PostId);
-                if (post != null)
-                {
-                    post.CommentsCount++;
-                    await _context.SaveChangesAsync();
-                }
+                post.CommentsCount++;
+                await _context.SaveChangesAsync();
             }
 
             return comment;
