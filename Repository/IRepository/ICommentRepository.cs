@@ -7,6 +7,8 @@ namespace CodeQuestBackend.Repository.IRepository
     {
         Task<Comment?> GetByIdAsync(int id);
         Task<IEnumerable<CommentDto>> GetByPostIdAsync(int postId);
+        Task<IEnumerable<CommentDto>> GetByPostIdAsync(int postId, int? currentUserId);
+        Task<IEnumerable<CommentDto>> GetByPostIdAsync(int postId, int? currentUserId, string sortBy);
         Task<IEnumerable<CommentDto>> GetByAuthorIdAsync(int authorId);
         Task<Comment> CreateAsync(CreateCommentDto createCommentDto, int authorId);
         Task<Comment?> UpdateAsync(int id, UpdateCommentDto updateCommentDto, int authorId);

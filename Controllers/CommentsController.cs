@@ -48,11 +48,12 @@ namespace CodeQuestBackend.Controllers
         }
 
         [HttpGet("post/{postId}")]
-        public async Task<IActionResult> GetCommentsByPost(int postId)
+        public async Task<IActionResult> GetCommentsByPost(int postId, [FromQuery] string sortBy = "newest")
         {
             try
             {
-                var comments = await _commentService.GetCommentsByPostIdAsync(postId);
+                var currentUserId = GetCurrentUserId();
+                var comments = await _commentService.GetCommentsByPostIdAsync(postId, currentUserId, sortBy);
                 return Ok(comments);
             }
             catch (Exception ex)

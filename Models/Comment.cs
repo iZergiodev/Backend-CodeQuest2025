@@ -34,4 +34,8 @@ public class Comment
     public virtual Comment? Parent { get; set; }
 
     public virtual ICollection<Comment> Replies { get; set; } = new List<Comment>();
+    public virtual ICollection<CommentLike> Likes { get; set; } = new List<CommentLike>();
+
+    // Counters
+    public int LikesCount { get; set; } = 0;
 }

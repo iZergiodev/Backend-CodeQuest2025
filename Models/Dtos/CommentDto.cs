@@ -17,6 +17,7 @@ namespace CodeQuestBackend.Models.Dtos
         public List<CommentDto> Replies { get; set; } = new List<CommentDto>();
         public int LikesCount { get; set; } = 0;
         public int RepliesCount { get; set; } = 0;
+        public bool IsLikedByUser { get; set; } = false;
     }
 
     public class CreateCommentDto

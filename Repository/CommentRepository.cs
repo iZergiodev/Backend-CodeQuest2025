@@ -25,27 +25,51 @@ namespace CodeQuestBackend.Repository
 
         public async Task<IEnumerable<CommentDto>> GetByPostIdAsync(int postId)
         {
+            return await GetByPostIdAsync(postId, null);
+        }
+
+        public async Task<IEnumerable<CommentDto>> GetByPostIdAsync(int postId, int? currentUserId)
+        {
+            return await GetByPostIdAsync(postId, currentUserId, "newest");
+        }
+
+        public async Task<IEnumerable<CommentDto>> GetByPostIdAsync(int postId, int? currentUserId, string sortBy)
+        {
             // Load all comments for the post with their authors
-            var allComments = await _context.Comments
+            var allCommentsQuery = _context.Comments
                 .Where(c => c.PostId == postId)
                 .Include(c => c.Author)
                 .Include(c => c.Post)
-                .OrderByDescending(c => c.CreatedAt)
-                .ToListAsync();
+                .Include(c => c.Likes);
+
+            // Apply sorting
+            var allComments = sortBy.ToLower() switch
+            {
+                "top" => await allCommentsQuery.OrderByDescending(c => c.LikesCount).ThenByDescending(c => c.CreatedAt).ToListAsync(),
+                "controversial" => await allCommentsQuery.ToListAsync(), // We'll sort by replies count after loading
+                "oldest" => await allCommentsQuery.OrderBy(c => c.CreatedAt).ToListAsync(),
+                _ => await allCommentsQuery.OrderByDescending(c => c.CreatedAt).ToListAsync() // default to newest
+            };
 
             // Convert to DTOs with recursive replies
-            var commentDtos = allComments.Select(c => MapCommentToDto(c, allComments)).ToList();
+            var commentDtos = allComments.Select(c => MapCommentToDto(c, allComments, currentUserId)).ToList();
+
+            // Apply controversial sorting if needed (after we have the replies count)
+            if (sortBy.ToLower() == "controversial")
+            {
+                commentDtos = commentDtos.OrderByDescending(c => c.RepliesCount).ThenByDescending(c => c.CreatedAt).ToList();
+            }
 
             // Return only top-level comments (ParentId is null)
             return commentDtos.Where(c => c.ParentId == null).ToList();
         }
 
-        private CommentDto MapCommentToDto(Comment comment, List<Comment> allComments)
+        private CommentDto MapCommentToDto(Comment comment, List<Comment> allComments, int? currentUserId = null)
         {
             var replies = allComments
                 .Where(c => c.ParentId == comment.Id)
                 .OrderBy(c => c.CreatedAt)
-                .Select(c => MapCommentToDto(c, allComments))
+                .Select(c => MapCommentToDto(c, allComments, currentUserId))
                 .ToList();
 
             // Ensure we have the author information
@@ -54,6 +78,10 @@ namespace CodeQuestBackend.Repository
 
             // Calculate total replies count (including nested replies)
             var totalRepliesCount = allComments.Count(c => c.ParentId == comment.Id);
+
+            // Check if current user has liked this comment
+            var isLikedByUser = currentUserId.HasValue && 
+                               comment.Likes.Any(l => l.UserId == currentUserId.Value);
 
             return new CommentDto
             {
@@ -68,8 +96,9 @@ namespace CodeQuestBackend.Repository
                 AuthorAvatar = authorAvatar,
                 ParentId = comment.ParentId,
                 Replies = replies,
-                LikesCount = 0, // Comments don't have likes in this system
-                RepliesCount = totalRepliesCount
+                LikesCount = comment.LikesCount,
+                RepliesCount = totalRepliesCount,
+                IsLikedByUser = isLikedByUser
             };
         }
 
