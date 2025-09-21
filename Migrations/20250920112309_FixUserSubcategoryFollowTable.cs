@@ -5,25 +5,25 @@
 namespace CodeQuestBackend.Migrations
 {
     /// <inheritdoc />
-    public partial class AddVisitsCountToPost : Migration
+    public partial class FixUserSubcategoryFollowTable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<int>(
-                name: "VisitsCount",
-                table: "Posts",
-                type: "integer",
+            migrationBuilder.AddColumn<DateTime>(
+                name: "FollowedAt",
+                table: "UserSubcategoryFollows",
+                type: "timestamp with time zone",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: new DateTime(2025, 9, 20, 11, 23, 9, 0, DateTimeKind.Utc));
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "VisitsCount",
-                table: "Posts");
+                name: "FollowedAt",
+                table: "UserSubcategoryFollows");
         }
     }
 }
