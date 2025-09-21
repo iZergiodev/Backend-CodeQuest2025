@@ -317,6 +317,37 @@ public class PostsController : ControllerBase
         }
     }
 
+    [HttpGet("followed/paginated")]
+    public async Task<IActionResult> GetPostsByFollowedSubcategoriesPaginated(
+        [FromQuery] string subcategoryIds, 
+        [FromQuery] int page = 1, 
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string sortBy = "recent")
+    {
+        try
+        {
+            if (page < 1) page = 1;
+            if (pageSize < 1 || pageSize > 50) pageSize = 10;
+
+            // Parse comma-separated subcategory IDs
+            var subcategoryIdList = new List<int>();
+            if (!string.IsNullOrEmpty(subcategoryIds))
+            {
+                subcategoryIdList = subcategoryIds.Split(',')
+                    .Where(id => int.TryParse(id.Trim(), out _))
+                    .Select(id => int.Parse(id.Trim()))
+                    .ToList();
+            }
+
+            var posts = await _postService.GetPostsByFollowedSubcategoriesAsync(subcategoryIdList, page, pageSize, sortBy);
+            return Ok(posts);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Error al obtener los posts de subcategorías seguidas: {ex.Message}");
+        }
+    }
+
     private int? GetCurrentUserId()
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

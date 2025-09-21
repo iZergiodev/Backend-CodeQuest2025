@@ -302,4 +302,20 @@ public class PostService
             IsLikedByUser = isLikedByUser
         };
     }
+
+    public async Task<PaginatedResultDto<PostDto>> GetPostsByFollowedSubcategoriesAsync(List<int> subcategoryIds, int page, int pageSize, string sortBy = "recent")
+    {
+        var result = await _postRepository.GetByFollowedSubcategoriesAsync(subcategoryIds, page, pageSize, sortBy);
+
+        return new PaginatedResultDto<PostDto>
+        {
+            Data = result.Data.Select(post => MapToPostDto(post)).ToList(),
+            Page = result.Page,
+            PageSize = result.PageSize,
+            TotalItems = result.TotalItems,
+            TotalPages = result.TotalPages,
+            HasNextPage = result.HasNextPage,
+            HasPreviousPage = result.HasPreviousPage
+        };
+    }
 }

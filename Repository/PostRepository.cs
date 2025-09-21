@@ -269,4 +269,55 @@ public class PostRepository : IPostRepository
             HasPreviousPage = page > 1
         };
     }
+
+    public async Task<PaginatedResultDto<Post>> GetByFollowedSubcategoriesAsync(List<int> subcategoryIds, int page, int pageSize, string sortBy = "recent")
+    {
+        if (subcategoryIds == null || !subcategoryIds.Any())
+        {
+            return new PaginatedResultDto<Post>
+            {
+                Data = new List<Post>(),
+                Page = page,
+                PageSize = pageSize,
+                TotalItems = 0,
+                TotalPages = 0,
+                HasNextPage = false,
+                HasPreviousPage = false
+            };
+        }
+
+        var baseQuery = _context.Posts
+            .Where(p => subcategoryIds.Contains(p.SubcategoryId ?? 0))
+            .Include(p => p.Author)
+            .Include(p => p.Category)
+            .Include(p => p.Subcategory);
+
+        // Apply sorting
+        var query = sortBy.ToLower() switch
+        {
+            "popular" => baseQuery.OrderByDescending(p => p.LikesCount + p.CommentsCount + p.VisitsCount),
+            "trending" => baseQuery.OrderByDescending(p => p.TrendingScore),
+            "oldest" => baseQuery.OrderBy(p => p.CreatedAt),
+            "recent" or _ => baseQuery.OrderByDescending(p => p.CreatedAt)
+        };
+
+        var totalItems = await query.CountAsync();
+        var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+        var posts = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PaginatedResultDto<Post>
+        {
+            Data = posts,
+            Page = page,
+            PageSize = pageSize,
+            TotalItems = totalItems,
+            TotalPages = totalPages,
+            HasNextPage = page < totalPages,
+            HasPreviousPage = page > 1
+        };
+    }
 }
