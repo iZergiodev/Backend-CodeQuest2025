@@ -51,6 +51,36 @@ namespace CodeQuestBackend.Controllers
             }
         }
 
+        [HttpPost("{commentId}/toggle")]
+        public async Task<IActionResult> ToggleLike(int commentId)
+        {
+            try
+            {
+                var userId = GetCurrentUserId();
+                if (userId == null)
+                    return Unauthorized();
+
+                var isLiked = await _commentLikeService.IsLikedByUserAsync(commentId, userId.Value);
+                
+                bool success;
+                if (isLiked)
+                {
+                    success = await _commentLikeService.UnlikeCommentAsync(commentId, userId.Value);
+                    return Ok(new { message = "Comment unliked successfully", liked = false });
+                }
+                else
+                {
+                    success = await _commentLikeService.LikeCommentAsync(commentId, userId.Value);
+                    return Ok(new { message = "Comment liked successfully", liked = true });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error toggling like for comment {CommentId}", commentId);
+                return StatusCode(500, new { message = "Internal server error" });
+            }
+        }
+
         [HttpDelete("{commentId}/like")]
         public async Task<IActionResult> UnlikeComment(int commentId)
         {

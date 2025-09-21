@@ -26,7 +26,7 @@ public class PostService
     public async Task<ICollection<PostDto>> GetAllPostsAsync()
     {
         var posts = await _postRepository.GetAllAsync();
-        return posts.Select(MapToPostDto).ToList();
+        return posts.Select(post => MapToPostDto(post)).ToList();
     }
 
     public async Task<PostDto?> GetPostByIdAsync(int id)
@@ -35,16 +35,22 @@ public class PostService
         return post != null ? MapToPostDto(post) : null;
     }
 
+    public async Task<PostDto?> GetPostByIdAsync(int id, int? currentUserId)
+    {
+        var post = await _postRepository.GetByIdAsync(id);
+        return post != null ? MapToPostDto(post, currentUserId) : null;
+    }
+
     public async Task<ICollection<PostDto>> GetPostsByAuthorIdAsync(int authorId)
     {
         var posts = await _postRepository.GetByAuthorIdAsync(authorId);
-        return posts.Select(MapToPostDto).ToList();
+        return posts.Select(post => MapToPostDto(post)).ToList();
     }
 
     public async Task<ICollection<PostDto>> GetPostsByCategoryIdAsync(int categoryId)
     {
         var posts = await _postRepository.GetByCategoryIdAsync(categoryId);
-        return posts.Select(MapToPostDto).ToList();
+        return posts.Select(post => MapToPostDto(post)).ToList();
     }
 
     public async Task<PostDto> CreatePostAsync(CreatePostDto createPostDto, int authorId)
@@ -132,7 +138,7 @@ public class PostService
     public async Task<ICollection<PostDto>> GetRankedPostsAsync()
     {
         var posts = await _postRepository.GetAllAsync();
-        var postDtos = posts.Select(MapToPostDto).ToList();
+        var postDtos = posts.Select(post => MapToPostDto(post)).ToList();
 
         var authorIds = postDtos.Select(p => p.AuthorId).Distinct().ToList();
         var authors = await _userRepository.GetUsersByIdsAsync(authorIds);
@@ -145,7 +151,7 @@ public class PostService
     public async Task<ICollection<PostDto>> GetRankedPostsByCategoryAsync(int categoryId)
     {
         var posts = await _postRepository.GetByCategoryIdAsync(categoryId);
-        var postDtos = posts.Select(MapToPostDto).ToList();
+        var postDtos = posts.Select(post => MapToPostDto(post)).ToList();
 
         var authorIds = postDtos.Select(p => p.AuthorId).Distinct().ToList();
         var authors = await _userRepository.GetUsersByIdsAsync(authorIds);
@@ -162,7 +168,7 @@ public class PostService
 
         return new PaginatedResultDto<PostDto>
         {
-            Data = result.Data.Select(MapToPostDto).ToList(),
+            Data = result.Data.Select(post => MapToPostDto(post)).ToList(),
             Page = result.Page,
             PageSize = result.PageSize,
             TotalItems = result.TotalItems,
@@ -178,7 +184,7 @@ public class PostService
 
         return new PaginatedResultDto<PostDto>
         {
-            Data = result.Data.Select(MapToPostDto).ToList(),
+            Data = result.Data.Select(post => MapToPostDto(post)).ToList(),
             Page = result.Page,
             PageSize = result.PageSize,
             TotalItems = result.TotalItems,
@@ -194,7 +200,7 @@ public class PostService
 
         return new PaginatedResultDto<PostDto>
         {
-            Data = result.Data.Select(MapToPostDto).ToList(),
+            Data = result.Data.Select(post => MapToPostDto(post)).ToList(),
             Page = result.Page,
             PageSize = result.PageSize,
             TotalItems = result.TotalItems,
@@ -210,7 +216,7 @@ public class PostService
 
         return new PaginatedResultDto<PostDto>
         {
-            Data = result.Data.Select(MapToPostDto).ToList(),
+            Data = result.Data.Select(post => MapToPostDto(post)).ToList(),
             Page = result.Page,
             PageSize = result.PageSize,
             TotalItems = result.TotalItems,
@@ -223,7 +229,7 @@ public class PostService
     public async Task<PaginatedResultDto<PostDto>> GetRankedPostsPaginatedAsync(int page, int pageSize)
     {
         var result = await _postRepository.GetAllPaginatedAsync(page, pageSize);
-        var postDtos = result.Data.Select(MapToPostDto).ToList();
+        var postDtos = result.Data.Select(post => MapToPostDto(post)).ToList();
 
         var authorIds = postDtos.Select(p => p.AuthorId).Distinct().ToList();
         var authors = await _userRepository.GetUsersByIdsAsync(authorIds);
@@ -246,7 +252,7 @@ public class PostService
     public async Task<PaginatedResultDto<PostDto>> GetRankedPostsByCategoryPaginatedAsync(int categoryId, int page, int pageSize)
     {
         var result = await _postRepository.GetByCategoryIdPaginatedAsync(categoryId, page, pageSize);
-        var postDtos = result.Data.Select(MapToPostDto).ToList();
+        var postDtos = result.Data.Select(post => MapToPostDto(post)).ToList();
 
         var authorIds = postDtos.Select(p => p.AuthorId).Distinct().ToList();
         var authors = await _userRepository.GetUsersByIdsAsync(authorIds);
@@ -266,8 +272,11 @@ public class PostService
         };
     }
 
-    private static PostDto MapToPostDto(Post post)
+    private static PostDto MapToPostDto(Post post, int? currentUserId = null)
     {
+        var isLikedByUser = currentUserId.HasValue && 
+                           post.Likes.Any(l => l.UserId == currentUserId.Value);
+
         return new PostDto
         {
             Id = post.Id,
@@ -289,7 +298,8 @@ public class PostService
             Tags = post.Tags,
             LikesCount = post.LikesCount,
             CommentsCount = post.CommentsCount,
-            VisitsCount = post.VisitsCount
+            VisitsCount = post.VisitsCount,
+            IsLikedByUser = isLikedByUser
         };
     }
 }

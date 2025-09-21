@@ -24,6 +24,7 @@ public class PostDto
     public int LikesCount { get; set; }
     public int CommentsCount { get; set; }
     public int VisitsCount { get; set; }
+    public bool IsLikedByUser { get; set; }
     
     // Engagement Metrics
     public double PopularityScore { get; set; }

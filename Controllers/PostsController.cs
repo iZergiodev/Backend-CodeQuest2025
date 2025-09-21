@@ -1,6 +1,7 @@
 using CodeQuestBackend.Models.Dtos;
 using CodeQuestBackend.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace CodeQuestBackend.Controllers;
 
@@ -34,7 +35,8 @@ public class PostsController : ControllerBase
     {
         try
         {
-            var post = await _postService.GetPostByIdAsync(id);
+            var currentUserId = GetCurrentUserId();
+            var post = await _postService.GetPostByIdAsync(id, currentUserId);
             if (post == null)
             {
                 return NotFound($"El post con ID {id} no existe");
@@ -303,5 +305,15 @@ public class PostsController : ControllerBase
         {
             return StatusCode(StatusCodes.Status500InternalServerError, $"Error al obtener los posts rankeados por categoría paginados: {ex.Message}");
         }
+    }
+
+    private int? GetCurrentUserId()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim != null && int.TryParse(userIdClaim, out int userId))
+        {
+            return userId;
+        }
+        return null;
     }
 }
