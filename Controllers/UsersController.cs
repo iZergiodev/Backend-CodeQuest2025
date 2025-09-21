@@ -113,19 +113,13 @@ namespace CodeQuestBackend.Controllers
                 if (!string.IsNullOrEmpty(updateUserDto.Name))
                     existingUser.Name = updateUserDto.Name;
                 
-                if (!string.IsNullOrEmpty(updateUserDto.Username))
-                    existingUser.Username = updateUserDto.Username;
-                
-                if (!string.IsNullOrEmpty(updateUserDto.Email))
-                    existingUser.Email = updateUserDto.Email;
-                
                 if (!string.IsNullOrEmpty(updateUserDto.Biography))
                     existingUser.Biography = updateUserDto.Biography;
                 
                 if (!string.IsNullOrEmpty(updateUserDto.BirthDate))
                 {
                     if (DateTime.TryParse(updateUserDto.BirthDate, out DateTime birthDate))
-                        existingUser.BirthDate = birthDate;
+                        existingUser.BirthDate = DateTime.SpecifyKind(birthDate, DateTimeKind.Utc);
                 }
                 
                 if (!string.IsNullOrEmpty(updateUserDto.Avatar))
