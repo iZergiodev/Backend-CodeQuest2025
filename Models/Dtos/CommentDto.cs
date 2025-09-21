@@ -15,6 +15,8 @@ namespace CodeQuestBackend.Models.Dtos
         public string? AuthorAvatar { get; set; }
         public int? ParentId { get; set; }
         public List<CommentDto> Replies { get; set; } = new List<CommentDto>();
+        public int LikesCount { get; set; } = 0;
+        public int RepliesCount { get; set; } = 0;
     }
 
     public class CreateCommentDto
