@@ -1,6 +1,7 @@
 using CodeQuestBackend.Data;
 using CodeQuestBackend.Models;
 using CodeQuestBackend.Repository.IRepository;
+using CodeQuestBackend.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace CodeQuestBackend.Repository;
@@ -8,10 +9,12 @@ namespace CodeQuestBackend.Repository;
 public class PostLikeRepository : IPostLikeRepository
 {
     private readonly ApplicationDbContext _context;
+    private readonly TrendingService _trendingService;
 
-    public PostLikeRepository(ApplicationDbContext context)
+    public PostLikeRepository(ApplicationDbContext context, TrendingService trendingService)
     {
         _context = context;
+        _trendingService = trendingService;
     }
 
     public async Task<bool> LikePostAsync(int postId, int userId)
@@ -41,6 +44,10 @@ public class PostLikeRepository : IPostLikeRepository
         }
 
         await _context.SaveChangesAsync();
+
+        // Record engagement for trending (after saving to avoid duplicate count increments)
+        await _trendingService.RecordEngagementAsync(postId, userId, EngagementType.Like);
+        
         return true;
     }
 
@@ -62,6 +69,10 @@ public class PostLikeRepository : IPostLikeRepository
         }
 
         await _context.SaveChangesAsync();
+
+        // Record engagement removal for trending (after saving to avoid duplicate count decrements)
+        await _trendingService.RemoveEngagementAsync(postId, userId, EngagementType.Like);
+        
         return true;
     }
 

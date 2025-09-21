@@ -1,5 +1,6 @@
 using CodeQuestBackend.Models.Dtos;
 using CodeQuestBackend.Services;
+using CodeQuestBackend.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -8,13 +9,15 @@ namespace CodeQuestBackend.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 public class PostsController : ControllerBase
-{
-    private readonly PostService _postService;
-
-    public PostsController(PostService postService)
     {
-        _postService = postService;
-    }
+        private readonly PostService _postService;
+        private readonly TrendingService _trendingService;
+
+        public PostsController(PostService postService, TrendingService trendingService)
+        {
+            _postService = postService;
+            _trendingService = trendingService;
+        }
 
     [HttpGet]
     public async Task<IActionResult> GetAllPosts()
@@ -41,6 +44,13 @@ public class PostsController : ControllerBase
             {
                 return NotFound($"El post con ID {id} no existe");
             }
+
+            // Record view engagement for trending (only if user is authenticated)
+            if (currentUserId.HasValue)
+            {
+                await _trendingService.RecordEngagementAsync(id, currentUserId.Value, EngagementType.View);
+            }
+
             return Ok(post);
         }
         catch (Exception ex)
