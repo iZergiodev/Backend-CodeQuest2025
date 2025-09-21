@@ -318,4 +318,20 @@ public class PostService
             HasPreviousPage = result.HasPreviousPage
         };
     }
+
+    public async Task<PaginatedResultDto<PostDto>> SearchPostsAsync(string query, int page, int pageSize, string sortBy = "recent", int? currentUserId = null)
+    {
+        var result = await _postRepository.SearchPostsAsync(query, page, pageSize, sortBy);
+
+        return new PaginatedResultDto<PostDto>
+        {
+            Data = result.Data.Select(post => MapToPostDto(post, currentUserId)).ToList(),
+            Page = result.Page,
+            PageSize = result.PageSize,
+            TotalItems = result.TotalItems,
+            TotalPages = result.TotalPages,
+            HasNextPage = result.HasNextPage,
+            HasPreviousPage = result.HasPreviousPage
+        };
+    }
 }
