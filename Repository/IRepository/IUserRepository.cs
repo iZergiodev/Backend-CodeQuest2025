@@ -14,6 +14,7 @@ public interface IUserRepository
     Task<User?> GetByDiscordIdAsync(string discordId);
     Task<User> CreateAsync(User user);
     Task<User> UpdateAsync(User user);
+    Task<User> UpdateDiscordFieldsAsync(User user);
     Task<bool> ExistsAsync(int id);
     Task<ICollection<User>> GetUsersByIdsAsync(ICollection<int> userIds);
     Task<User?> GetByIdAsync(int id);
