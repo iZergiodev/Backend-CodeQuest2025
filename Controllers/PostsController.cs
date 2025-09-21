@@ -348,6 +348,33 @@ public class PostsController : ControllerBase
         }
     }
 
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchPosts(
+        [FromQuery] string query,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string sortBy = "recent")
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return BadRequest("La consulta de búsqueda no puede estar vacía");
+            }
+
+            if (page < 1) page = 1;
+            if (pageSize < 1 || pageSize > 50) pageSize = 10;
+
+            var currentUserId = GetCurrentUserId();
+            var posts = await _postService.SearchPostsAsync(query.Trim(), page, pageSize, sortBy, currentUserId);
+            return Ok(posts);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Error al buscar posts: {ex.Message}");
+        }
+    }
+
     private int? GetCurrentUserId()
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

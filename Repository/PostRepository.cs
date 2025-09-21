@@ -320,4 +320,42 @@ public class PostRepository : IPostRepository
             HasPreviousPage = page > 1
         };
     }
+
+    public async Task<PaginatedResultDto<Post>> SearchPostsAsync(string query, int page, int pageSize, string sortBy = "recent")
+    {
+        // Build base query with includes
+        var baseQuery = _context.Posts
+            .Where(p => p.Title.Contains(query) || p.Content.Contains(query) || (p.Summary != null && p.Summary.Contains(query)))
+            .Include(p => p.Author)
+            .Include(p => p.Category)
+            .Include(p => p.Subcategory);
+
+        // Apply sorting
+        var queryResult = sortBy.ToLower() switch
+        {
+            "popular" => baseQuery.OrderByDescending(p => p.LikesCount + p.CommentsCount + p.VisitsCount),
+            "trending" => baseQuery.OrderByDescending(p => p.TrendingScore),
+            "oldest" => baseQuery.OrderBy(p => p.CreatedAt),
+            "recent" or _ => baseQuery.OrderByDescending(p => p.CreatedAt)
+        };
+
+        var totalItems = await queryResult.CountAsync();
+        var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+        var posts = await queryResult
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PaginatedResultDto<Post>
+        {
+            Data = posts,
+            Page = page,
+            PageSize = pageSize,
+            TotalItems = totalItems,
+            TotalPages = totalPages,
+            HasNextPage = page < totalPages,
+            HasPreviousPage = page > 1
+        };
+    }
 }
