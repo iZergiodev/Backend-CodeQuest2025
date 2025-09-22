@@ -1,6 +1,7 @@
 using CodeQuestBackend.Models.Dtos;
 using CodeQuestBackend.Services;
 using CodeQuestBackend.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -88,6 +89,7 @@ public class PostsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> CreatePost([FromBody] CreatePostDto createPostDto, [FromQuery] int authorId)
     {
         try
@@ -116,6 +118,7 @@ public class PostsController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
+    [Authorize]
     public async Task<IActionResult> UpdatePost(int id, [FromBody] CreatePostDto updatePostDto)
     {
         try
@@ -144,6 +147,7 @@ public class PostsController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize]
     public async Task<IActionResult> DeletePost(int id)
     {
         try

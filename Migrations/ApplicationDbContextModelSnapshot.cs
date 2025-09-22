@@ -314,7 +314,7 @@ namespace CodeQuestBackend.Migrations
 
                     b.PrimitiveCollection<string[]>("Tags")
                         .IsRequired()
-                        .HasColumnType("text[]");
+                        .HasColumnType("jsonb");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -435,7 +435,7 @@ namespace CodeQuestBackend.Migrations
                     b.Property<string>("Biography")
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("BirthDate")
+                    b.Property<DateTime?>("BirthDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("CreatedAt")

@@ -18,4 +18,5 @@ public interface IUserRepository
     Task<bool> ExistsAsync(int id);
     Task<ICollection<User>> GetUsersByIdsAsync(ICollection<int> userIds);
     Task<User?> GetByIdAsync(int id);
+    Task<User?> GetByDiscordUsernameAsync(string discordUsername);
 }

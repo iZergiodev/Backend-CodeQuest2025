@@ -49,6 +49,11 @@ public class ApplicationDbContext : DbContext
             .HasForeignKey(p => p.AuthorId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // Configure Tags as JSON column
+        modelBuilder.Entity<Post>()
+            .Property(p => p.Tags)
+            .HasColumnType("jsonb");
+
         modelBuilder.Entity<Comment>()
             .HasOne(c => c.Author)
             .WithMany()
