@@ -11,18 +11,17 @@ using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure Npgsql for JSON serialization
+NpgsqlConnection.GlobalTypeMapper.EnableDynamicJson();
+
 // Add services to the container.
 var dbConnectionString = builder.Environment.IsDevelopment() 
     ? builder.Configuration.GetConnectionString("DefaultConnection")
     : builder.Configuration.GetConnectionString("PostgreRailway");
 
-// Configure Npgsql for JSON serialization
 builder.Services.AddDbContext<ApplicationDbContext>(options => 
 {
-    options.UseNpgsql(dbConnectionString, npgsqlOptions =>
-    {
-        npgsqlOptions.EnableDynamicJson();
-    });
+    options.UseNpgsql(dbConnectionString);
 });
 // Add repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
