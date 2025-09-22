@@ -1,5 +1,6 @@
 using CodeQuestBackend.Models.Dtos;
 using CodeQuestBackend.Repository.IRepository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CodeQuestBackend.Controllers;
@@ -68,6 +69,7 @@ public class SubcategoriesController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> CreateSubcategory([FromBody] CreateSubcategoryDto createSubcategoryDto)
     {
         try
@@ -106,6 +108,7 @@ public class SubcategoriesController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
+    [Authorize]
     public async Task<IActionResult> UpdateSubcategory(int id, [FromBody] UpdateSubcategoryDto updateSubcategoryDto)
     {
         try
@@ -147,6 +150,7 @@ public class SubcategoriesController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize]
     public async Task<IActionResult> DeleteSubcategory(int id)
     {
         try

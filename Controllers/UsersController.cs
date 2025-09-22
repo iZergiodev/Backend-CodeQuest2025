@@ -137,5 +137,50 @@ namespace CodeQuestBackend.Controllers
             }
         }
 
+        [HttpPut("{id:int}/role")]
+        [Authorize]
+        public async Task<IActionResult> UpdateUserRole(int id, [FromBody] UpdateUserRoleDto updateRoleDto)
+        {
+            try
+            {
+                // Get current user ID from token
+                var currentUserIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+                if (currentUserIdClaim == null || !int.TryParse(currentUserIdClaim.Value, out int currentUserId))
+                {
+                    return Unauthorized(new { message = "Invalid token claims" });
+                }
+
+                // Check if current user is admin
+                var currentUser = _userRepository.GetUser(currentUserId);
+                if (currentUser?.Role != "Admin")
+                {
+                    return Forbid("Only admins can update user roles");
+                }
+
+                if (updateRoleDto == null || string.IsNullOrEmpty(updateRoleDto.Role))
+                {
+                    return BadRequest("Role is required");
+                }
+
+                var existingUser = _userRepository.GetUser(id);
+                if (existingUser == null)
+                {
+                    return NotFound($"User with ID {id} not found");
+                }
+
+                // Update user role
+                existingUser.Role = updateRoleDto.Role;
+                var updatedUser = await _userRepository.UpdateAsync(existingUser);
+                var userDto = _mapper.Map<UserDto>(updatedUser);
+
+                return Ok(userDto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, 
+                    new { message = "Error updating user role", error = ex.Message });
+            }
+        }
+
     }
 }

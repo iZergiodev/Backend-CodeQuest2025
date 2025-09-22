@@ -199,4 +199,9 @@ public class UserRepository : IUserRepository
         return await _db.Users.FirstOrDefaultAsync(u => u.Id == id);
     }
 
+    public async Task<User?> GetByDiscordUsernameAsync(string discordUsername)
+    {
+        return await _db.Users.FirstOrDefaultAsync(u => u.DiscordUsername == discordUsername);
+    }
+
 }
