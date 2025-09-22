@@ -25,4 +25,5 @@ public interface IPostRepository
     Task<PaginatedResultDto<Post>> GetBySubcategoryIdPaginatedAsync(int subcategoryId, int page, int pageSize);
     Task<PaginatedResultDto<Post>> GetByFollowedSubcategoriesAsync(List<int> subcategoryIds, int page, int pageSize, string sortBy = "recent");
     Task<PaginatedResultDto<Post>> SearchPostsAsync(string query, int page, int pageSize, string sortBy = "recent");
+    Task<ICollection<Post>> GetRelatedPostsAsync(int postId, int limit = 5);
 }

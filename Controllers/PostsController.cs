@@ -317,6 +317,22 @@ public class PostsController : ControllerBase
         }
     }
 
+    [HttpGet("{id:int}/related")]
+    public async Task<IActionResult> GetRelatedPosts(int id, [FromQuery] int limit = 5)
+    {
+        try
+        {
+            if (limit < 1 || limit > 20) limit = 5;
+
+            var posts = await _postService.GetRelatedPostsAsync(id, limit);
+            return Ok(posts);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Error al obtener los posts relacionados: {ex.Message}");
+        }
+    }
+
     [HttpGet("followed/paginated")]
     public async Task<IActionResult> GetPostsByFollowedSubcategoriesPaginated(
         [FromQuery] string subcategoryIds, 

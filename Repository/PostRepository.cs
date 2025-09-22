@@ -358,4 +358,67 @@ public class PostRepository : IPostRepository
             HasPreviousPage = page > 1
         };
     }
+
+    public async Task<ICollection<Post>> GetRelatedPostsAsync(int postId, int limit = 5)
+    {
+        // Get the current post to find its tags and subcategory
+        var currentPost = await _context.Posts
+            .FirstOrDefaultAsync(p => p.Id == postId);
+
+        if (currentPost == null)
+            return new List<Post>();
+
+        var relatedPosts = new List<Post>();
+
+        // Get all posts with includes for efficient querying
+        var allPosts = await _context.Posts
+            .Where(p => p.Id != postId)
+            .Include(p => p.Author)
+            .Include(p => p.Category)
+            .Include(p => p.Subcategory)
+            .ToListAsync();
+
+        // First priority: Posts with matching tags
+        if (currentPost.Tags != null && currentPost.Tags.Length > 0)
+        {
+            var tagMatches = allPosts
+                .Where(p => p.Tags != null && p.Tags.Any(tag => currentPost.Tags.Contains(tag)))
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(limit)
+                .ToList();
+
+            relatedPosts.AddRange(tagMatches);
+        }
+
+        // Second priority: Posts from the same subcategory (only if we don't have enough from tags)
+        if (relatedPosts.Count < limit && currentPost.SubcategoryId.HasValue)
+        {
+            var subcategoryMatches = allPosts
+                .Where(p => p.SubcategoryId == currentPost.SubcategoryId && 
+                           !relatedPosts.Any(rp => rp.Id == p.Id))
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(limit - relatedPosts.Count)
+                .ToList();
+
+            relatedPosts.AddRange(subcategoryMatches);
+        }
+
+        // Third priority: Posts from the same category (only if we don't have enough from tags/subcategory)
+        if (relatedPosts.Count < limit && currentPost.CategoryId.HasValue)
+        {
+            var categoryMatches = allPosts
+                .Where(p => p.CategoryId == currentPost.CategoryId && 
+                           !relatedPosts.Any(rp => rp.Id == p.Id))
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(limit - relatedPosts.Count)
+                .ToList();
+
+            relatedPosts.AddRange(categoryMatches);
+        }
+
+        // Only return posts that are truly related (by tags, subcategory, or category)
+        // Don't fall back to random recent posts - if there are no related posts, return empty list
+
+        return relatedPosts.Take(limit).ToList();
+    }
 }

@@ -299,7 +299,14 @@ public class PostService
             LikesCount = post.LikesCount,
             CommentsCount = post.CommentsCount,
             VisitsCount = post.VisitsCount,
-            IsLikedByUser = isLikedByUser
+            IsLikedByUser = isLikedByUser,
+            // Engagement Metrics
+            PopularityScore = post.PopularityScore,
+            TrendingScore = post.TrendingScore,
+            LastActivityAt = post.LastActivityAt,
+            RecentLikesCount = post.RecentLikesCount,
+            RecentCommentsCount = post.RecentCommentsCount,
+            RecentVisitsCount = post.RecentVisitsCount
         };
     }
 
@@ -333,5 +340,11 @@ public class PostService
             HasNextPage = result.HasNextPage,
             HasPreviousPage = result.HasPreviousPage
         };
+    }
+
+    public async Task<ICollection<PostDto>> GetRelatedPostsAsync(int postId, int limit = 5)
+    {
+        var posts = await _postRepository.GetRelatedPostsAsync(postId, limit);
+        return posts.Select(post => MapToPostDto(post)).ToList();
     }
 }
