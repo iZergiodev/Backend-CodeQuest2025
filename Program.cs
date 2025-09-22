@@ -11,6 +11,9 @@ using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add logging services
+builder.Services.AddLogging();
+
 // Configure Npgsql for JSON serialization
 NpgsqlConnection.GlobalTypeMapper.EnableDynamicJson();
 
